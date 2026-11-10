@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#20252b">
+  <meta name="description" content="Temporizador pessoal para o plano diário de estudo de piano.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Estudo de Piano</title>
+  <style>
+    :root{color-scheme:dark;--bg:#171a1f;--panel:#222730;--panel2:#292f39;--line:#39414d;--text:#f4f5f7;--muted:#aab2bf;--accent:#a8d5c2;--accentText:#10231c;--warn:#f2c879}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+    main{max-width:760px;margin:0 auto;padding:28px 18px 48px}
+    header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}
+    h1{font-size:1.35rem;margin:0} .sub{color:var(--muted);font-size:.9rem;margin-top:3px}
+    .pill{border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted);font-size:.82rem;white-space:nowrap}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+    .timer{text-align:center}
+    .eyebrow{font-size:.76rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+    #exercise{font-size:clamp(1.35rem,4vw,2rem);font-weight:650;margin:8px 0 4px}
+    #clock{font-variant-numeric:tabular-nums;font-size:clamp(4rem,16vw,6.7rem);font-weight:650;letter-spacing:-.06em;line-height:1.1;margin:18px 0}
+    #details{color:var(--muted);font-size:.9rem}
+    .track{height:8px;background:#3a414b;border-radius:10px;overflow:hidden;margin:18px 0 8px}
+    #bar{height:100%;width:0;background:var(--accent);transition:width .2s linear}
+    .status{min-height:28px;color:var(--warn);font-weight:600;margin:8px 0}
+    .controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button{border:0;border-radius:11px;padding:12px 18px;font:600  .95rem system-ui;cursor:pointer}
+    button:disabled{opacity:.4;cursor:not-allowed}
+    .primary{background:var(--accent);color:var(--accentText)} .secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}
+    #next{width:100%;margin-top:10px}
+    .sectionhead{display:flex;justify-content:space-between;align-items:center;margin:25px 2px 10px}
+    h2{font-size:1rem;margin:0}.muted{color:var(--muted);font-size:.85rem}
+    #schedule{display:grid;gap:8px}
+    .item{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.91rem}
+    .item.current{border-color:var(--accent);background:#26352f}
+    .item.done{opacity:.55}.item .left{display:flex;gap:10px;align-items:center;min-width:0}.item .name{overflow-wrap:anywhere}
+    .dot{color:var(--muted);width:15px}.current .dot{color:var(--accent)}.duration{color:var(--muted);white-space:nowrap}
+    footer{color:var(--muted);font-size:.8rem;margin-top:20px;text-align:center}
+    .alert{animation:pulse 1s ease-in-out 3}
+    @keyframes pulse{50%{border-color:var(--warn);box-shadow:0 0 0 3px #f2c87933}}
+    @media(max-width:480px){main{padding:20px 13px 35px}.panel{padding:18px 14px}.pill{font-size:.75rem}}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div><h1>Estudo de Piano</h1><div class="sub">Plano diário · 09:30–12:30</div></div>
+    <div class="pill" id="sessionState">Pronto a começar</div>
+  </header>
+
+  <section class="panel timer" id="timerPanel" aria-live="polite">
+    <div class="eyebrow" id="stepLabel">Etapa 1 de 10</div>
+    <div id="exercise">Treino auditivo</div>
+    <div id="clock">12:00</div>
+    <div class="track"><div id="bar"></div></div>
+    <div id="details">12 minutos · Início previsto: 09:30</div>
+    <div class="status" id="status" role="status">Quando estiveres pronto, inicia o primeiro exercício.</div>
+    <div class="controls">
+      <button class="primary" id="start">Iniciar</button>
+      <button class="secondary" id="pause" disabled>Pausar</button>
+      <button class="secondary" id="reset">Reiniciar plano</button>
+    </div>
+    <button class="primary" id="next" hidden>OK — Próximo exercício</button>
+  </section>
+
+  <div class="sectionhead"><h2>Programa de estudo</h2><span class="muted" id="completed">0 de 10 concluídos</span></div>
+  <section id="schedule" aria-label="Lista de exercícios"></section>
+  <footer>O temporizador só avança quando confirmares. Mantém esta página aberta durante a sessão.</footer>
+</main>
+<script>
+const plan = [
+  {name:"Treino auditivo", minutes:12, start:"09:30"},
+  {name:"Aquecimento Hanon", minutes:3, start:"09:42"},
+  {name:"Escalas", minutes:45, start:"09:45"},
+  {name:"Pausa", minutes:10, start:"10:30"},
+  {name:"Arpejos", minutes:15, start:"10:40"},
+  {name:"Cartões de acordes", minutes:12, start:"10:55"},
+  {name:"Pausa", minutes:10, start:"11:07"},
+  {name:"Criar progressões harmónicas", minutes:25, start:"11:17"},
+  {name:"Improvisar sobre acordes", minutes:25, start:"11:42"},
+  {name:"Repertório", minutes:23, start:"12:07"}
+];
+const $ = id => document.getElementById(id);
+let index=0, remaining=plan[0].minutes*60, running=false, waiting=false, interval=null, lastTick=0, audioCtx=null;
+const key="piano-study-timer-v1";
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function save(){try{localStorage.setItem(key,JSON.stringify({index,remaining,waiting}))}catch(e){}}
+function render(){
+  const p=plan[index], duration=p.minutes*60;
+  $("stepLabel").textContent=`Etapa ${index+1} de ${plan.length}`;
+  $("exercise").textContent=p.name;
+  $("clock").textContent=fmt(remaining);
+  $("details").textContent=`${p.minutes} minutos · Início previsto: ${p.start}`;
+  $("bar").style.width=`${100*(duration-remaining)/duration}%`;
+  $("sessionState").textContent=waiting?"À espera da confirmação":running?"Em curso":"Em pausa";
+  $("start").disabled=running||waiting;
+  $("start").textContent=(index===0&&remaining===duration)?"Iniciar":"Retomar";
+  $("pause").disabled=!running;
+  $("next").hidden=!waiting;
+  $("status").textContent=waiting?"⏰ Tempo terminado! Carrega em «OK — Próximo exercício» quando estiveres pronto.":running?"A contar o tempo…": "Quando estiveres pronto, inicia ou retoma o exercício.";
+  $("timerPanel").classList.toggle("alert",waiting);
+  $("completed").textContent=`${index} de ${plan.length} concluídos`;
+  $("schedule").replaceChildren();
+  plan.forEach((p,i)=>{
+    const row=document.createElement("div");
+    row.className="item"+(i===index?" current":"")+(i<index?" done":"");
+    const left=document.createElement("div");left.className="left";
+    const dot=document.createElement("span");dot.className="dot";dot.textContent=i<index?"✓":i===index?"●":"○";
+    const name=document.createElement("span");name.className="name";name.textContent=`${p.start} · ${p.name}`;
+    const dur=document.createElement("span");dur.className="duration";dur.textContent=`${p.minutes} min`;
+    left.append(dot,name);row.append(left,dur);$("schedule").append(row);
+  });
+  save();
+}
+function beep(){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==="suspended") audioCtx.resume();
+    [0,.32,.64].forEach(delay=>{
+      const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();
+      osc.type="sine";osc.frequency.value=880;osc.connect(gain);gain.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(.0001,audioCtx.currentTime+delay);
+      gain.gain.exponentialRampToValueAtTime(.2,audioCtx.currentTime+delay+.025);
+      gain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+delay+.23);
+      osc.start(audioCtx.currentTime+delay);osc.stop(audioCtx.currentTime+delay+.25);
+    });
+  }catch(e){$("status").textContent="Tempo terminado. O navegador não permitiu o som; confirma para continuar."}
+}
+function stop(){if(interval)clearInterval(interval);interval=null;running=false}
+function tick(){
+  const now=Date.now(), elapsed=Math.floor((now-lastTick)/1000);
+  if(elapsed>0){remaining=Math.max(0,remaining-elapsed);lastTick+=elapsed*1000}
+  if(remaining===0){stop();waiting=true;beep()}
+  render();
+}
+$("start").addEventListener("click",()=>{
+  if(running||waiting)return;
+  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();audioCtx.resume()}catch(e){}
+  running=true;lastTick=Date.now();interval=setInterval(tick,250);render();
+});
+$("pause").addEventListener("click",()=>{stop();render()});
+$("next").addEventListener("click",()=>{
+  if(!waiting)return;
+  if(index===plan.length-1){
+    stop();waiting=false;index=0;remaining=plan[0].minutes*60;render();
+    $("status").textContent="Plano concluído! Podes iniciar uma nova sessão quando quiseres.";
+    return;
+  }
+  index++;remaining=plan[index].minutes*60;waiting=false;render();
+});
+$("reset").addEventListener("click",()=>{
+  stop();index=0;remaining=plan[0].minutes*60;waiting=false;render();
+});
+try{
+  const saved=JSON.parse(localStorage.getItem(key)||"null");
+  if(saved&&Number.isInteger(saved.index)&&saved.index>=0&&saved.index<plan.length){
+    index=saved.index;remaining=Math.max(0,Math.min(plan[index].minutes*60,Number(saved.remaining)||0));
+    waiting=!!saved.waiting;
+  }
+}catch(e){}
+if("serviceWorker" in navigator && location.protocol!=="file:"){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+render();
+</script>
+</body>
+</html>
