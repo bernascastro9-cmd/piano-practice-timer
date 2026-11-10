@@ -1,7 +1,7 @@
 {
-  "name": "Estudo de Piano",
+  "name": "Piano Practice",
   "short_name": "Piano",
-  "description": "Temporizador para o plano diário de estudo de piano.",
+  "description": "A timer for your daily piano practice plan.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

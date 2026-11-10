@@ -1,28 +1,31 @@
-# Temporizador de Estudo de Piano
+# Piano Practice Timer
 
-## O que inclui
-- Plano diário inicial das 09:30 às 12:30.
-- Contagem decrescente, alerta sonoro e avanço apenas após confirmação manual.
-- Edição dos nomes e durações dos exercícios diretamente na aplicação.
-- Possibilidade de adicionar e eliminar exercícios.
-- Guardar o plano personalizado neste navegador.
-- Repor o plano original.
-- Suporte PWA e cache offline após publicação HTTPS.
+## Features
+- A daily practice plan with exercise durations and no fixed start times.
+- A countdown and a repeating alarm until you tap "OK, next exercise".
+- Restarting or restoring the plan also stops the alarm.
+- Edit exercise names and durations directly in the app.
+- Add and delete exercises.
+- Tap any exercise to skip ahead or go back, then press Start. Switching exercises stops the current timer and alarm and loads the selected exercise at its full duration.
+- Skipped exercises are not marked as completed.
+- Save your custom plan in this browser.
+- Restore the original plan.
+- App installation and offline caching when hosted over HTTPS.
 
-## Testar
-Abre `index.html` num navegador. Para instalar como aplicação e usar o modo offline, publica os ficheiros num alojamento HTTPS, por exemplo GitHub Pages.
+## Try it
+Open `index.html` in a browser. To install it as an app and use it offline, publish the files on an HTTPS host such as GitHub Pages.
 
-## Atualizar uma versão já publicada no GitHub
-1. Extrai este ZIP.
-2. Abre o repositório GitHub.
-3. Escolhe Add file > Upload files.
-4. Carrega os ficheiros novos, substituindo os antigos.
-5. Faz Commit changes.
-6. Atualiza a página publicada. Se a versão antiga continuar visível, fecha e volta a abrir a aplicação ou limpa a cache do site.
+## Update an existing GitHub deployment
+1. Extract this ZIP.
+2. Open your GitHub repository.
+3. Choose Add file > Upload files.
+4. Upload the new files, replacing the old ones.
+5. Select Commit changes.
+6. Refresh the published page. If the old version still appears, close and reopen the app or clear the site's cache.
 
-## Ficheiros
-- `index.html`: aplicação, temporizador e editor do plano
-- `manifest.json`: instalação como aplicação
-- `sw.js`: suporte offline
-- `icon.svg`: ícone
-- `README.txt`: instruções
+## Files
+- `index.html`: app, timer and plan editor
+- `manifest.json`: app installation settings
+- `sw.js`: offline support
+- `icon.svg`: icon
+- `README.txt`: instructions
