@@ -1,22 +1,28 @@
 # Temporizador de Estudo de Piano
 
-A aplicação inclui o plano diário configurado (09:30–12:30), contagem decrescente, alerta sonoro e avanço apenas após confirmação manual.
+## O que inclui
+- Plano diário inicial das 09:30 às 12:30.
+- Contagem decrescente, alerta sonoro e avanço apenas após confirmação manual.
+- Edição dos nomes e durações dos exercícios diretamente na aplicação.
+- Possibilidade de adicionar e eliminar exercícios.
+- Guardar o plano personalizado neste navegador.
+- Repor o plano original.
+- Suporte PWA e cache offline após publicação HTTPS.
 
-## Testar rapidamente
-Abre `index.html` no navegador. O temporizador funciona, mas a instalação como aplicação e o modo offline completo exigem alojamento HTTPS.
+## Testar
+Abre `index.html` num navegador. Para instalar como aplicação e usar o modo offline, publica os ficheiros num alojamento HTTPS, por exemplo GitHub Pages.
 
-## Instalar como aplicação (PWA)
-1. Publica os ficheiros desta pasta num alojamento HTTPS estático (por exemplo, GitHub Pages).
-2. Abre o endereço publicado no Chrome ou Edge.
-3. Escolhe **Instalar aplicação** na barra de endereço ou no menu do navegador.
+## Atualizar uma versão já publicada no GitHub
+1. Extrai este ZIP.
+2. Abre o repositório GitHub.
+3. Escolhe Add file > Upload files.
+4. Carrega os ficheiros novos, substituindo os antigos.
+5. Faz Commit changes.
+6. Atualiza a página publicada. Se a versão antiga continuar visível, fecha e volta a abrir a aplicação ou limpa a cache do site.
 
-Depois da primeira visita, a aplicação pode funcionar offline. O progresso fica guardado nesse navegador/dispositivo.
-
-## Conteúdo
-- `index.html`: aplicação e temporizador
-- `manifest.json`: identificação da aplicação instalável
+## Ficheiros
+- `index.html`: aplicação, temporizador e editor do plano
+- `manifest.json`: instalação como aplicação
 - `sw.js`: suporte offline
 - `icon.svg`: ícone
-
-## Nota
-Mantém a página aberta durante a sessão. O navegador pode suspender temporizadores se o dispositivo entrar em suspensão ou se a página for fechada.
+- `README.txt`: instruções

@@ -66,10 +66,26 @@
 
   <div class="sectionhead"><h2>Programa de estudo</h2><span class="muted" id="completed">0 de 10 concluídos</span></div>
   <section id="schedule" aria-label="Lista de exercícios"></section>
+
+  <section class="panel" style="margin-top:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div><h2>Personalizar o plano</h2><div class="muted">Altera nomes e durações; as mudanças ficam guardadas neste navegador.</div></div>
+      <button class="secondary" id="toggleEditor" type="button">Editar exercícios</button>
+    </div>
+    <div id="editor" hidden style="margin-top:16px">
+      <div id="editRows" style="display:grid;gap:9px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+        <button class="secondary" id="addExercise" type="button">+ Adicionar exercício</button>
+        <button class="secondary" id="restorePlan" type="button">Repor plano original</button>
+      </div>
+      <div class="muted" style="margin-top:10px">As alterações ao plano aplicam-se ao temporizador. Se estiveres a meio de uma sessão, recomenda-se reiniciar o plano depois de editar.</div>
+    </div>
+  </section>
+
   <footer>O temporizador só avança quando confirmares. Mantém esta página aberta durante a sessão.</footer>
 </main>
 <script>
-const plan = [
+const defaultPlan = [
   {name:"Treino auditivo", minutes:12, start:"09:30"},
   {name:"Aquecimento Hanon", minutes:3, start:"09:42"},
   {name:"Escalas", minutes:45, start:"09:45"},
@@ -82,11 +98,27 @@ const plan = [
   {name:"Repertório", minutes:23, start:"12:07"}
 ];
 const $ = id => document.getElementById(id);
-let index=0, remaining=plan[0].minutes*60, running=false, waiting=false, interval=null, lastTick=0, audioCtx=null;
-const key="piano-study-timer-v1";
+const timerKey="piano-study-timer-v2", planKey="piano-study-custom-plan-v1";
+let plan=loadPlan(), index=0, remaining=plan[0].minutes*60, running=false, waiting=false, interval=null, lastTick=0, audioCtx=null;
+function loadPlan(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(planKey)||"null");
+    if(Array.isArray(saved)&&saved.length&&saved.every(x=>typeof x.name==="string"&&Number.isFinite(x.minutes)&&x.minutes>0))
+      return saved.map(x=>({name:x.name,minutes:Math.min(240,Math.max(1,Math.round(x.minutes))),start:x.start||"—"}));
+  }catch(e){}
+  return defaultPlan.map(x=>({...x}));
+}
 function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
-function save(){try{localStorage.setItem(key,JSON.stringify({index,remaining,waiting}))}catch(e){}}
+function save(){try{localStorage.setItem(timerKey,JSON.stringify({index,remaining,waiting}))}catch(e){}}
+function updatePlanStarts(){
+  let total=9*60+30;
+  plan.forEach(p=>{
+    p.start=String(Math.floor(total/60)%24).padStart(2,"0")+":"+String(total%60).padStart(2,"0");
+    total+=p.minutes;
+  });
+}
 function render(){
+  if(index>=plan.length)index=0;
   const p=plan[index], duration=p.minutes*60;
   $("stepLabel").textContent=`Etapa ${index+1} de ${plan.length}`;
   $("exercise").textContent=p.name;
@@ -98,7 +130,7 @@ function render(){
   $("start").textContent=(index===0&&remaining===duration)?"Iniciar":"Retomar";
   $("pause").disabled=!running;
   $("next").hidden=!waiting;
-  $("status").textContent=waiting?"⏰ Tempo terminado! Carrega em «OK — Próximo exercício» quando estiveres pronto.":running?"A contar o tempo…": "Quando estiveres pronto, inicia ou retoma o exercício.";
+  $("status").textContent=waiting?"⏰ Tempo terminado! Carrega em «OK — Próximo exercício» quando estiveres pronto.":running?"A contar o tempo…":"Quando estiveres pronto, inicia ou retoma o exercício.";
   $("timerPanel").classList.toggle("alert",waiting);
   $("completed").textContent=`${index} de ${plan.length} concluídos`;
   $("schedule").replaceChildren();
@@ -128,16 +160,15 @@ function beep(){
   }catch(e){$("status").textContent="Tempo terminado. O navegador não permitiu o som; confirma para continuar."}
 }
 function stop(){if(interval)clearInterval(interval);interval=null;running=false}
-function tick(){
-  const now=Date.now(), elapsed=Math.floor((now-lastTick)/1000);
-  if(elapsed>0){remaining=Math.max(0,remaining-elapsed);lastTick+=elapsed*1000}
-  if(remaining===0){stop();waiting=true;beep()}
-  render();
-}
 $("start").addEventListener("click",()=>{
   if(running||waiting)return;
   try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();audioCtx.resume()}catch(e){}
-  running=true;lastTick=Date.now();interval=setInterval(tick,250);render();
+  running=true;lastTick=Date.now();interval=setInterval(()=>{
+    const now=Date.now(), elapsed=Math.floor((now-lastTick)/1000);
+    if(elapsed>0){remaining=Math.max(0,remaining-elapsed);lastTick+=elapsed*1000}
+    if(remaining===0){stop();waiting=true;beep()}
+    render();
+  },250);render();
 });
 $("pause").addEventListener("click",()=>{stop();render()});
 $("next").addEventListener("click",()=>{
@@ -152,13 +183,49 @@ $("next").addEventListener("click",()=>{
 $("reset").addEventListener("click",()=>{
   stop();index=0;remaining=plan[0].minutes*60;waiting=false;render();
 });
+function renderEditor(){
+  const wrap=$("editRows");wrap.replaceChildren();
+  plan.forEach((p,i)=>{
+    const row=document.createElement("div");
+    row.style.cssText="display:grid;grid-template-columns:minmax(0,1fr) 88px 40px;gap:7px;align-items:center";
+    const name=document.createElement("input");name.type="text";name.value=p.name;name.setAttribute("aria-label","Nome do exercício");
+    name.style.cssText="min-width:0;width:100%;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text)";
+    name.addEventListener("change",()=>{p.name=name.value.trim()||"Exercício";saveCustomPlan()});
+    const mins=document.createElement("input");mins.type="number";mins.min="1";mins.max="240";mins.step="1";mins.value=p.minutes;mins.setAttribute("aria-label","Duração em minutos");
+    mins.style.cssText="width:100%;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text)";
+    mins.addEventListener("change",()=>{p.minutes=Math.max(1,Math.min(240,Math.round(Number(mins.value)||1)));mins.value=p.minutes;saveCustomPlan()});
+    const del=document.createElement("button");del.type="button";del.textContent="×";del.title="Eliminar exercício";del.className="secondary";del.style.padding="9px";
+    del.addEventListener("click",()=>{if(plan.length<=1){alert("O plano tem de ter pelo menos um exercício.");return}plan.splice(i,1);saveCustomPlan();renderEditor()});
+    row.append(name,mins,del);wrap.append(row);
+  });
+}
+function saveCustomPlan(){
+  updatePlanStarts();
+  try{localStorage.setItem(planKey,JSON.stringify(plan))}catch(e){}
+  render();
+}
+$("toggleEditor").addEventListener("click",()=>{
+  const opening=$("editor").hidden;$("editor").hidden=!opening;
+  $("toggleEditor").textContent=opening?"Fechar edição":"Editar exercícios";
+  if(opening)renderEditor();
+});
+$("addExercise").addEventListener("click",()=>{
+  plan.push({name:"Novo exercício",minutes:10,start:"—"});
+  saveCustomPlan();renderEditor();
+});
+$("restorePlan").addEventListener("click",()=>{
+  if(!confirm("Queres repor os nomes e tempos do plano original?"))return;
+  plan=defaultPlan.map(x=>({...x}));
+  try{localStorage.removeItem(planKey)}catch(e){}
+  stop();index=0;remaining=plan[0].minutes*60;waiting=false;updatePlanStarts();render();renderEditor();
+});
 try{
-  const saved=JSON.parse(localStorage.getItem(key)||"null");
+  const saved=JSON.parse(localStorage.getItem(timerKey)||"null");
   if(saved&&Number.isInteger(saved.index)&&saved.index>=0&&saved.index<plan.length){
-    index=saved.index;remaining=Math.max(0,Math.min(plan[index].minutes*60,Number(saved.remaining)||0));
-    waiting=!!saved.waiting;
+    index=saved.index;remaining=Math.max(0,Math.min(plan[index].minutes*60,Number(saved.remaining)||0));waiting=!!saved.waiting;
   }
 }catch(e){}
+updatePlanStarts();
 if("serviceWorker" in navigator && location.protocol!=="file:"){
   window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
 }
