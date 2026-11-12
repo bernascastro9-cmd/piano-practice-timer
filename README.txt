@@ -29,3 +29,11 @@ Open `index.html` in a browser. To install it as an app and use it offline, publ
 - `sw.js`: offline support
 - `icon.svg`: icon
 - `README.txt`: instructions
+
+
+CHORD DICE UPDATE
+- Select the "Chord flashcards" exercise in the practice plan.
+- Open "Chord dice · 36 chords".
+- Draws all 36 chords in shuffled order without repeats.
+- Chord symbol is shown first (for example F#m7); reveal shows quality, notes and formula.
+- Use "Shuffle and restart round" to start a fresh random round.
