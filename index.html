@@ -45,7 +45,7 @@
     .embedded-toggle{justify-self:start;border:1px solid var(--line);background:var(--panel2);color:var(--accent);padding:7px 12px;font-size:.79rem;border-radius:9px;margin:0 0 2px 14px}
     .embedded-panel{margin:0 0 9px 0!important;padding:16px!important;border-color:#4a5e55}
     .embedded-panel .dice-head>div>.muted{font-size:.78rem}
-    .embedded-panel .dice-card{min-height:140px;padding:14px 12px;gap:7px}
+    .embedded-panel .dice-card{min-height:165px;padding:18px 12px}
     .embedded-panel #diceChord{font-size:clamp(2.4rem,9vw,4rem)}
     .embedded-panel .ear-keyboard{height:125px}
     @media(max-width:480px){.embedded-panel{padding:12px!important}.embedded-panel .ear-keyboard{height:108px}}
@@ -141,22 +141,25 @@
   </section>
 
   <section class="panel" id="chordDice" hidden aria-label="Chord dice practice">
-    <button class="secondary" id="closeChordDice" type="button" hidden>Close</button>
+    <div class="dice-head">
+      <div><h2>Chord dice</h2><div class="muted">Draw all 36 seventh chords in random order, without repeats.</div></div>
+      <button class="secondary" id="closeChordDice" type="button">Close</button>
+    </div>
     <div class="dice-progress"><div id="diceBar"></div></div>
     <div class="dice-head">
       <span class="muted" id="diceCount">0 of 36 drawn</span>
-      <span class="muted" id="diceRemaining" hidden>36 remaining</span>
+      <span class="muted" id="diceRemaining">36 remaining</span>
     </div>
     <button class="dice-card" id="drawChord" style="margin-top:12px" type="button" aria-label="Roll the dice to draw a chord">
-      <span class="eyebrow" id="diceEyebrow" hidden>CHORD DICE</span>
+      <span class="eyebrow" id="diceEyebrow">CHORD DICE</span>
       <span class="dice-icon" id="diceIcon" aria-hidden="true">⚄</span>
       <span id="diceChord">Ready?</span>
-      <span class="muted" id="dicePrompt" hidden></span>
+      <span class="muted" id="dicePrompt">Draw a chord, identify it and play it on the piano.</span>
       <span class="dice-hint" id="rollLabel">Tap here to roll the dice</span>
     </button>
     <div class="answer-actions"><button class="secondary" id="toggleDiceAnswer" type="button" aria-expanded="false" aria-controls="diceAnswer" hidden>Reveal answer</button></div>
     <div id="diceAnswer" class="muted" hidden style="text-align:center;margin-top:10px"></div>
-    <div class="dice-head" style="margin-top:14px"><h2>Previous chords</h2></div>
+    <div class="dice-head" style="margin-top:18px"><h2>Drawn this round</h2><span class="muted">No repeats</span></div>
     <div id="diceHistory" aria-live="polite"></div>
 
   </section>
@@ -413,7 +416,7 @@ function resetChordDice(){
   chordDrawn=[];currentChord=null;
   $("diceChord").textContent="Ready?";
   $("diceEyebrow").textContent="YOUR CHORD";
-  $("dicePrompt").textContent="";
+  $("dicePrompt").textContent="Draw a chord, identify it and play it on the piano.";
   $("diceAnswer").hidden=true;
   $("diceAnswer").textContent="";
   $("toggleDiceAnswer").hidden=true;
@@ -433,7 +436,7 @@ function drawChord(){
   $("diceIcon").hidden=true;
   $("drawChord").setAttribute("aria-label",`Current chord ${currentChord.symbol}. Click to roll again`);
   $("diceEyebrow").textContent="IDENTIFY AND PLAY THIS CHORD";
-  $("dicePrompt").textContent="";
+  $("dicePrompt").textContent="Work out the chord quality and play all four notes before revealing the answer.";
   $("diceAnswer").hidden=true;
   $("toggleDiceAnswer").hidden=false;
   $("toggleDiceAnswer").textContent="Reveal answer";
