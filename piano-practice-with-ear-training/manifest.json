@@ -1,0 +1,18 @@
+{
+  "name": "Piano Practice",
+  "short_name": "Piano",
+  "description": "A timer for your daily piano practice plan.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#171a1f",
+  "theme_color": "#20252b",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
