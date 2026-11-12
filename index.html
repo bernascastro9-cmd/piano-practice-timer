@@ -40,20 +40,77 @@
     .dot{color:var(--muted);width:15px}.current .dot{color:var(--accent)}.duration{color:var(--muted);white-space:nowrap}
     footer{color:var(--muted);font-size:.8rem;margin-top:20px;text-align:center}
 
-    #openChordDice{width:100%;margin-top:10px}
+    #openChordDice,#openEarTraining{display:none!important}
+    .plan-group{display:grid;gap:7px}
+    .embedded-toggle{justify-self:start;border:1px solid var(--line);background:var(--panel2);color:var(--accent);padding:7px 12px;font-size:.79rem;border-radius:9px;margin:0 0 2px 14px}
+    .embedded-panel{margin:0 0 9px 0!important;padding:16px!important;border-color:#4a5e55}
+    .embedded-panel .dice-head>div>.muted{font-size:.78rem}
+    .embedded-panel .dice-card{min-height:140px;padding:14px 12px;gap:7px}
+    .embedded-panel #diceChord{font-size:clamp(2.4rem,9vw,4rem)}
+    .embedded-panel .ear-keyboard{height:125px}
+    @media(max-width:480px){.embedded-panel{padding:12px!important}.embedded-panel .ear-keyboard{height:108px}}
     #chordDice{margin-top:18px}
     .dice-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .dice-progress{height:8px;background:#3a414b;border-radius:10px;overflow:hidden;margin:10px 0 16px}
     #diceBar{height:100%;width:0;background:var(--accent);transition:width .2s}
-    .dice-card{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:30px 16px;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px}
+    .dice-card{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:30px 16px;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
+    .dice-card:hover{border-color:var(--accent);background:#303943}
+    .dice-card:active{transform:scale(.99)}
+    .dice-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    .dice-card:disabled{opacity:1;cursor:wait}
+    .dice-card:disabled:hover{background:var(--panel2)}
     #diceChord{font-size:clamp(3rem,12vw,5.5rem);font-weight:750;letter-spacing:-.06em;line-height:1.1}
-    #diceAnswer{color:var(--muted);font-size:.98rem;line-height:1.65}
-    .dice-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-    .dice-actions button{flex:1;min-width:130px}
+    #diceAnswer{color:var(--muted);font-size:.9rem;line-height:1.65}
+    .answer-actions{text-align:center;margin-top:12px}
+    #toggleDiceAnswer{font-size:.8rem;padding:7px 12px;border-radius:8px}
+    [hidden]{display:none!important}
+    .dice-icon{font-size:3rem;display:inline-block;line-height:1;min-height:3rem}
+    .dice-hint{font-size:.82rem;color:var(--accent);font-weight:600;letter-spacing:.02em}
+    .dice-icon.rolling{animation:diceTumble .7s cubic-bezier(.2,.7,.2,1)}
+    @keyframes diceTumble{0%{transform:rotate(0) scale(1)}25%{transform:rotate(130deg) scale(1.25)}55%{transform:rotate(310deg) scale(.85)}80%{transform:rotate(460deg) scale(1.15)}100%{transform:rotate(720deg) scale(1)}}
+    @media(prefers-reduced-motion:reduce){.dice-icon.rolling{animation:none}}
     #diceHistory{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
     .history-chip{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:.8rem}
     .history-chip.current{border-color:var(--accent);color:var(--text)}
 
+    #earTraining{margin-top:18px}
+    .ear-card{width:100%;min-height:134px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:15px 14px;text-align:center;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+    .ear-card:hover{background:#303943;border-color:var(--accent)}
+    .ear-card:active{transform:scale(.99)}
+    .ear-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    .ear-symbol{font-size:1.5rem;line-height:1;min-height:1.5rem;color:var(--accent);display:inline-block}
+    .ear-symbol.pulse{animation:earBounce .5s ease-out}
+    @keyframes earBounce{0%{transform:scale(.8);opacity:.5}50%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+    @media(prefers-reduced-motion:reduce){.ear-symbol.pulse{animation:none}}
+    .ear-piano-wrap{margin-top:4px;padding:11px 12px 10px;background:var(--panel2);border:1px solid var(--line);border-radius:14px}
+    .ear-piano-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .ear-piano-head strong{font-size:.85rem}
+    .ear-piano-head span{color:var(--muted);font-size:.76rem}
+    .ear-session-count{color:var(--muted);font-size:.8rem}
+    #earInterval{font-size:clamp(1.6rem,6vw,2.3rem);font-weight:750;letter-spacing:-.035em;line-height:1.14}
+    #earNote{font-size:.9rem;color:var(--accent);font-weight:650}
+    #earDirection{font-size:1rem;color:var(--muted);font-weight:650;letter-spacing:.015em;min-height:1em}
+    #earTraining .answer-actions{margin-top:7px}
+    #earTraining #replayReference{padding:6px 11px;font-size:.77rem}
+    .ear-keyboard{position:relative;display:flex;width:100%;height:145px;margin:12px auto 10px;max-width:600px;border:2px solid #11161d;border-radius:0 0 8px 8px;overflow:hidden;touch-action:manipulation}
+    .ear-keyboard .ear-white,.ear-keyboard .ear-black{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;appearance:none;padding:0;font:inherit;outline-offset:-3px}
+    .ear-keyboard .ear-white:focus-visible,.ear-keyboard .ear-black:focus-visible{outline:3px solid #6bc9ff;z-index:3}
+    .ear-keyboard .ear-white.pressed{background:linear-gradient(#afd9ff,#70a9e2);box-shadow:inset 0 2px 9px #16497360}
+    .ear-keyboard .ear-black.pressed{background:linear-gradient(#6ca2d8,#24507f);box-shadow:0 0 0 2px #a6d8ff}
+    .ear-white{position:relative;flex:1;min-width:0;height:100%;background:linear-gradient(#fff,#e5e9ed);border-right:1px solid #8b949e;border-radius:0 0 4px 4px}
+    .ear-white:last-child{border-right:0}
+    .ear-black{position:absolute;top:0;width:calc(100% / 21 * .59);height:59%;background:linear-gradient(#333b45,#080d13);border:1px solid #0c1014;border-radius:0 0 5px 5px;z-index:2;transform:translateX(-50%);box-shadow:1px 2px 3px #0006}
+    .ear-white.reference{background:linear-gradient(#b8f5dc,#6abb9b)}
+    .ear-black.reference{background:linear-gradient(#84d9b6,#2a8465)}
+    .ear-white.target{background:linear-gradient(#f9e8aa,#e6b65d)}
+    .ear-black.target{background:linear-gradient(#ffdf83,#b88226)}
+    .ear-white.both{background:linear-gradient(120deg,#81cba9 49%,#f5d78a 51%)}
+    .ear-black.both{background:linear-gradient(120deg,#3a9876 49%,#c69332 51%)}
+    .ear-legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:.8rem}
+    .ear-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:#80cba7}
+    .ear-legend .target-dot{background:#efca77}
+    .ear-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+    #replayReference{font-size:.82rem;padding:8px 12px}
     .alert{animation:pulse 1s ease-in-out 3}
     @keyframes pulse{50%{border-color:var(--warn);box-shadow:0 0 0 3px #f2c87933}}
     @media(max-width:480px){main{padding:20px 13px 35px}.panel{padding:18px 14px}.pill{font-size:.75rem}}
@@ -62,7 +119,7 @@
 <body>
 <main>
   <header>
-    <div><h1>Piano Practice</h1><div class="sub">Daily practice at your own pace</div></div>
+    <div><h1>Piano Practice</h1></div>
     <div class="pill" id="sessionState">Ready to start</div>
   </header>
 
@@ -71,8 +128,8 @@
     <div id="exercise">Ear training</div>
     <div id="clock">12:00</div>
     <div class="track"><div id="bar"></div></div>
-    <div id="details">12 minutes</div>
-    <div class="status" id="status" role="status">Start the first exercise when you are ready.</div>
+    <div id="details" hidden>12 minutes</div>
+    <div class="status" id="status" role="status" hidden></div>
     <div class="controls">
       <button class="primary" id="start">Start</button>
       <button class="secondary" id="pause" disabled>Pause</button>
@@ -80,42 +137,59 @@
     </div>
     <button class="primary" id="next" hidden>OK, next exercise</button>
     <button class="secondary" id="openChordDice" hidden type="button">Open chord dice · 36 chords</button>
+    <button class="secondary" id="openEarTraining" hidden type="button">Open ear training · Singing intervals</button>
   </section>
 
   <section class="panel" id="chordDice" hidden aria-label="Chord dice practice">
-    <div class="dice-head">
-      <div><h2>Chord dice</h2><div class="muted">Draw all 36 seventh chords in random order, without repeats.</div></div>
-      <button class="secondary" id="closeChordDice" type="button">Close</button>
-    </div>
+    <button class="secondary" id="closeChordDice" type="button" hidden>Close</button>
     <div class="dice-progress"><div id="diceBar"></div></div>
     <div class="dice-head">
       <span class="muted" id="diceCount">0 of 36 drawn</span>
-      <span class="muted" id="diceRemaining">36 remaining</span>
+      <span class="muted" id="diceRemaining" hidden>36 remaining</span>
     </div>
-    <div class="dice-card" style="margin-top:12px">
-      <div class="eyebrow" id="diceEyebrow">YOUR CHORD</div>
-      <div id="diceChord">Ready?</div>
-      <div class="muted" id="dicePrompt">Draw a chord, identify it and play it on the piano.</div>
-      <div id="diceAnswer" hidden></div>
-    </div>
-    <div class="dice-actions">
-      <button class="secondary" id="revealChord" type="button" disabled>Reveal answer</button>
-      <button class="primary" id="drawChord" type="button">Roll the dice</button>
-    </div>
-    <div class="dice-head" style="margin-top:18px"><h2>Drawn this round</h2><span class="muted">No repeats</span></div>
+    <button class="dice-card" id="drawChord" style="margin-top:12px" type="button" aria-label="Roll the dice to draw a chord">
+      <span class="eyebrow" id="diceEyebrow" hidden>CHORD DICE</span>
+      <span class="dice-icon" id="diceIcon" aria-hidden="true">⚄</span>
+      <span id="diceChord">Ready?</span>
+      <span class="muted" id="dicePrompt" hidden></span>
+      <span class="dice-hint" id="rollLabel">Tap here to roll the dice</span>
+    </button>
+    <div class="answer-actions"><button class="secondary" id="toggleDiceAnswer" type="button" aria-expanded="false" aria-controls="diceAnswer" hidden>Reveal answer</button></div>
+    <div id="diceAnswer" class="muted" hidden style="text-align:center;margin-top:10px"></div>
+    <div class="dice-head" style="margin-top:14px"><h2>Previous chords</h2></div>
     <div id="diceHistory" aria-live="polite"></div>
-    <div class="dice-actions">
-      <button class="secondary" id="reshuffleDice" type="button">Shuffle and restart round</button>
+
+  </section>
+
+  <section class="panel" id="earTraining" hidden aria-label="Ear training practice">
+    <button class="secondary" id="closeEarTraining" type="button" hidden>Close</button>
+    <div class="dice-head" style="margin-bottom:5px">
+      <span class="ear-session-count" id="earCount">0 completed</span>
     </div>
+    <button class="ear-card" id="earCard" type="button" style="margin-top:8px" aria-label="Start ear training interval">
+      <span class="eyebrow" id="earEyebrow" hidden>EAR TRAINING</span>
+      <span class="ear-symbol" id="earSymbol" aria-hidden="true">♫</span>
+      <span id="earInterval">Ready?</span>
+      <span id="earDirection" aria-live="polite"></span>
+      <span id="earNote">Listen, then sing the target note</span>
+      <span class="dice-hint" id="earHint">Tap here to start</span>
+    </button>
+    <div class="answer-actions"><button class="secondary" id="replayReference" type="button" hidden>♫ Replay reference</button></div>
+    <div class="ear-piano-wrap">
+      <div class="ear-piano-head"><strong>Piano</strong><span>C3–B5</span></div>
+      <div class="ear-keyboard" id="earKeyboard" role="group" aria-label="Interactive piano keyboard, C3 to B5"></div>
+      <div class="ear-legend"><span><i></i>Reference</span><span><i class="target-dot"></i>Answer</span></div>
+      <p class="muted" style="text-align:center;margin:10px 0 0;font-size:.74rem" id="pianoSampleStatus" hidden></p>
+    </div>
+    <p class="muted" id="earInstructions" hidden></p>
   </section>
 
   <div class="sectionhead"><h2>Practice plan</h2><span class="muted" id="completed">0 of 10 completed</span></div>
-  <p class="muted">Tap any exercise to select it, then press Start. You can skip ahead or go back.</p>
   <section id="schedule" aria-label="Exercise list"></section>
 
   <section class="panel" style="margin-top:18px">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <div><h2>Customize your plan</h2><div class="muted">Change names and durations. Your changes are saved in this browser.</div></div>
+      <div><h2>Customize your plan</h2></div>
       <button class="secondary" id="toggleEditor" type="button">Edit exercises</button>
     </div>
     <div id="editor" hidden style="margin-top:16px">
@@ -128,7 +202,7 @@
     </div>
   </section>
 
-  <footer>The alarm repeats until you confirm the next exercise. Keep this page open during your session.</footer>
+  <footer>Keep this page open during your session.</footer>
 </main>
 <script>
 const defaultPlan = [
@@ -137,7 +211,7 @@ const defaultPlan = [
   {name:"Scales", minutes:45},
   {name:"Break", minutes:10},
   {name:"Arpeggios", minutes:15},
-  {name:"Chord flashcards", minutes:12},
+  {name:"Chord Dice", minutes:12},
   {name:"Break", minutes:10},
   {name:"Create chord progressions", minutes:25},
   {name:"Improvise over chords", minutes:25},
@@ -145,8 +219,10 @@ const defaultPlan = [
 ];
 const $ = id => document.getElementById(id);
 const timerKey="piano-study-timer-v2", planKey="piano-study-custom-plan-v1";
-const originalExerciseNames={"Treino auditivo": "Ear training", "Aquecimento Hanon": "Hanon warm-up", "Escalas": "Scales", "Pausa": "Break", "Arpejos": "Arpeggios", "Cartões de acordes": "Chord flashcards", "Criar progressões harmónicas": "Create chord progressions", "Improvisar sobre acordes": "Improvise over chords", "Repertório": "Repertoire", "Novo exercício": "New exercise", "Exercício": "Exercise"};
+const originalExerciseNames={"Chord flashcards": "Chord Dice", "Treino auditivo": "Ear training", "Aquecimento Hanon": "Hanon warm-up", "Escalas": "Scales", "Pausa": "Break", "Arpejos": "Arpeggios", "Cartões de acordes": "Chord Dice", "Criar progressões harmónicas": "Create chord progressions", "Improvisar sobre acordes": "Improvise over chords", "Repertório": "Repertoire", "Novo exercício": "New exercise", "Exercício": "Exercise"};
 let plan=loadPlan(), index=0, remaining=plan[0].minutes*60, running=false, waiting=false, interval=null, lastTick=0, audioCtx=null, alarmSource=null, completedExercises=new Set();
+const embeddedOpen={ear:true,dice:false};
+const embeddedPanels={ear:$("earTraining"),dice:$("chordDice")};
 function loadPlan(){
   try{
     const saved=JSON.parse(localStorage.getItem(planKey)||"null");
@@ -162,7 +238,8 @@ function render(){
   const p=plan[index], duration=p.minutes*60;
   $("stepLabel").textContent=`Step ${index+1} of ${plan.length}`;
   $("exercise").textContent=p.name;
-  $("openChordDice").hidden=!/chord.*(flashcards|cards)|(?:flashcards|cards).*chord/i.test(p.name);
+  $("openChordDice").hidden=!/chord.*(flashcards|cards|dice)|(?:flashcards|cards|dice).*chord/i.test(p.name);
+  $("openEarTraining").hidden=!/ear training|treino auditivo/i.test(p.name);
   $("clock").textContent=fmt(remaining);
   $("details").textContent=`${p.minutes} minutes`;
   $("bar").style.width=`${100*(duration-remaining)/duration}%`;
@@ -171,9 +248,11 @@ function render(){
   $("start").textContent=(remaining===duration)?"Start":"Resume";
   $("pause").disabled=!running;
   $("next").hidden=!waiting;
-  $("status").textContent=waiting?"Time is up! Tap «OK, next exercise» when you are ready.":running?"Timer running…":"Start or resume the exercise when you are ready.";
+  $("status").hidden=!waiting;
+  $("status").textContent=waiting?"Time is up — confirm to continue.":"";
   $("timerPanel").classList.toggle("alert",waiting);
   $("completed").textContent=`${completedExercises.size} of ${plan.length} completed`;
+  // Preserve the existing widgets and their interactive state while rebuilding the plan.
   $("schedule").replaceChildren();
   plan.forEach((p,i)=>{
     const row=document.createElement("button");
@@ -185,7 +264,23 @@ function render(){
     const dot=document.createElement("span");dot.className="dot";dot.textContent=i===index?"●":completedExercises.has(i)?"✓":"○";
     const name=document.createElement("span");name.className="name";name.textContent=p.name;
     const dur=document.createElement("span");dur.className="duration";dur.textContent=`${p.minutes} min`;
-    left.append(dot,name);row.append(left,dur);$("schedule").append(row);
+    left.append(dot,name);row.append(left,dur);
+    const group=document.createElement("div");group.className="plan-group";
+    group.append(row);
+    const type=/chord.*(flashcards|cards|dice)|(?:flashcards|cards|dice).*chord/i.test(p.name)?"dice":/ear training|treino auditivo/i.test(p.name)?"ear":null;
+    // Widgets appear immediately beneath their own exercise, not in separate sections.
+    if(type){
+      const toggle=document.createElement("button");toggle.type="button";toggle.className="embedded-toggle";
+      const panel=embeddedPanels[type];
+      const isOpen=embeddedOpen[type] && !document.querySelector(`#schedule .embedded-panel[data-exercise-type="${type}"]`);
+      toggle.textContent=isOpen?"⌃  Hide":"⌄  Open";
+      toggle.setAttribute("aria-expanded",String(isOpen));
+      toggle.addEventListener("click",()=>{embeddedOpen[type]=!embeddedOpen[type];render();if(embeddedOpen[type]&&type==="ear")preloadPianoSamples()});
+      group.append(toggle);
+      if(isOpen){panel.hidden=false;panel.classList.add("embedded-panel");panel.dataset.exerciseType=type;group.append(panel)}
+      else if(!document.querySelector(`#schedule .embedded-panel[data-exercise-type="${type}"]`)){panel.hidden=true}
+    }
+    $("schedule").append(group);
   });
   save();
 }
@@ -275,9 +370,9 @@ const chordDeckSource = [
   ["F","Fmaj7","F A C E","Major seventh","1 · 3 · 5 · 7"],
   ["F","Fm7","F Ab C Eb","Minor seventh","1 · ♭3 · 5 · ♭7"],
   ["F","F7","F A C Eb","Dominant seventh","1 · 3 · 5 · ♭7"],
-  ["Gb","Gbmaj7","Gb Bb Db F","Major seventh","1 · 3 · 5 · 7"],
-  ["Gb","Gbm7","Gb A Db E","Minor seventh","1 · ♭3 · 5 · ♭7"],
-  ["Gb","Gb7","Gb Bb Db Fb","Dominant seventh","1 · 3 · 5 · ♭7"],
+  ["F#","F#maj7","F# A# C# E#","Major seventh","1 · 3 · 5 · 7"],
+  ["F#","F#m7","F# A C# E","Minor seventh","1 · ♭3 · 5 · ♭7"],
+  ["F#","F#7","F# A# C# E","Dominant seventh","1 · 3 · 5 · ♭7"],
   ["G","Gmaj7","G B D F#","Major seventh","1 · 3 · 5 · 7"],
   ["G","Gm7","G Bb D F","Minor seventh","1 · ♭3 · 5 · ♭7"],
   ["G","G7","G B D F","Dominant seventh","1 · 3 · 5 · ♭7"],
@@ -318,12 +413,16 @@ function resetChordDice(){
   chordDrawn=[];currentChord=null;
   $("diceChord").textContent="Ready?";
   $("diceEyebrow").textContent="YOUR CHORD";
-  $("dicePrompt").textContent="Draw a chord, identify it and play it on the piano.";
+  $("dicePrompt").textContent="";
   $("diceAnswer").hidden=true;
   $("diceAnswer").textContent="";
-  $("revealChord").disabled=true;
+  $("toggleDiceAnswer").hidden=true;
+  $("toggleDiceAnswer").textContent="Reveal answer";
+  $("toggleDiceAnswer").setAttribute("aria-expanded","false");
   $("drawChord").disabled=false;
-  $("drawChord").textContent="Roll the dice";
+  $("rollLabel").textContent="Tap here to roll the dice";
+  $("diceIcon").hidden=false;
+  $("drawChord").setAttribute("aria-label","Roll the dice to draw a chord");
   updateChordDice();
 }
 function drawChord(){
@@ -331,35 +430,194 @@ function drawChord(){
   currentChord=chordDeck.pop();
   chordDrawn.push(currentChord);
   $("diceChord").textContent=currentChord.symbol;
+  $("diceIcon").hidden=true;
+  $("drawChord").setAttribute("aria-label",`Current chord ${currentChord.symbol}. Click to roll again`);
   $("diceEyebrow").textContent="IDENTIFY AND PLAY THIS CHORD";
-  $("dicePrompt").textContent="Work out the chord quality and play all four notes before revealing the answer.";
+  $("dicePrompt").textContent="";
   $("diceAnswer").hidden=true;
-  $("diceAnswer").innerHTML="";
-  $("revealChord").disabled=false;
-  $("drawChord").disabled=chordDeck.length===0;
-  $("drawChord").textContent=chordDeck.length===0?"Round complete":"Next chord";
+  $("toggleDiceAnswer").hidden=false;
+  $("toggleDiceAnswer").textContent="Reveal answer";
+  $("toggleDiceAnswer").setAttribute("aria-expanded","false");
+  $("diceAnswer").innerHTML=`<strong>${currentChord.quality}</strong> · Notes: <strong>${currentChord.notes}</strong> · Formula: ${currentChord.formula}`;
+  $("drawChord").disabled=false;
+  $("rollLabel").textContent=chordDeck.length===0?"Tap to start a new round":"Tap here for another chord";
   updateChordDice();
   if(chordDeck.length===0){
-    $("dicePrompt").textContent="That was the last chord. Reveal its notes, or shuffle to start a new round.";
+    $("dicePrompt").textContent="That was the last chord. Roll again to start a new round.";
   }
 }
-function revealChord(){
+$("openChordDice").addEventListener("click",()=>{embeddedOpen.dice=true;render();$("chordDice").scrollIntoView({behavior:"smooth",block:"start"});});
+$("closeChordDice").addEventListener("click",()=>{embeddedOpen.dice=false;render()});
+$("drawChord").addEventListener("click",()=>{
+  const button=$("drawChord"), icon=$("diceIcon");
+  if(!chordDeck.length)resetChordDice();
+  button.disabled=true;
+  icon.hidden=false;
+  $("diceChord").textContent="";
+  $("diceAnswer").hidden=true;
+  $("toggleDiceAnswer").hidden=true;
+  $("toggleDiceAnswer").setAttribute("aria-expanded","false");
+  $("diceEyebrow").textContent="ROLLING THE DICE";
+  void icon.offsetWidth;
+  icon.classList.add("rolling");
+  $("rollLabel").textContent="Rolling…";
+  const faces=["⚀","⚁","⚂","⚃","⚄","⚅"];
+  const interval=setInterval(()=>{icon.textContent=faces[Math.floor(Math.random()*6)];},85);
+  setTimeout(()=>{clearInterval(interval);icon.classList.remove("rolling");icon.textContent=faces[Math.floor(Math.random()*6)];drawChord();},700);
+});
+$("toggleDiceAnswer").addEventListener("click",()=>{
   if(!currentChord)return;
-  $("diceAnswer").innerHTML=`<strong>${currentChord.quality}</strong><br>Notes: <strong>${currentChord.notes}</strong><br>Formula: ${currentChord.formula}`;
-  $("diceAnswer").hidden=false;
-}
-$("openChordDice").addEventListener("click",()=>{
-  $("chordDice").hidden=false;
-  $("chordDice").scrollIntoView({behavior:"smooth",block:"start"});
+  const answer=$("diceAnswer");
+  answer.hidden=!answer.hidden;
+  $("toggleDiceAnswer").textContent=answer.hidden?"Reveal answer":"Hide answer";
+  $("toggleDiceAnswer").setAttribute("aria-expanded",String(!answer.hidden));
 });
-$("closeChordDice").addEventListener("click",()=>{
-  $("chordDice").hidden=true;
-  $("timerPanel").scrollIntoView({behavior:"smooth",block:"start"});
-});
-$("drawChord").addEventListener("click",drawChord);
-$("revealChord").addEventListener("click",revealChord);
-$("reshuffleDice").addEventListener("click",resetChordDice);
 resetChordDice();
+
+// Ear training: reference tone first, target tone only after revealing.
+const earNoteNames=["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+const earIntervals=[
+  [1,"Minor 2nd"],[2,"Major 2nd"],[3,"Minor 3rd"],[4,"Major 3rd"],
+  [5,"Perfect 4th"],[6,"Tritone"],[7,"Perfect 5th"],
+  [8,"Minor 6th"],[9,"Major 6th"],[10,"Minor 7th"],[11,"Major 7th"],[12,"Octave"]
+];
+let earPhase="ready", earReference=null, earTarget=null, earChallenge=null, earCompleted=0;
+function animateEarSymbol(){const symbol=$("earSymbol");symbol.classList.remove("pulse");void symbol.offsetWidth;symbol.classList.add("pulse") }
+function earLabel(midi){return earNoteNames[midi%12]+(Math.floor(midi/12)-1)}
+// Real acoustic Yamaha C5 recordings from the Salamander Grand Piano library.
+// One recording every 3–4 semitones; playback-rate transposition fills the remaining keys.
+// Source: https://tonejs.github.io/audio/salamander/ (CC BY 3.0, Alexander Holm).
+const pianoSampleBase="https://tonejs.github.io/audio/salamander/";
+const pianoSampleRoots=[
+  [48,"C3"],[51,"Ds3"],[54,"Fs3"],[57,"A3"],
+  [60,"C4"],[63,"Ds4"],[66,"Fs4"],[69,"A4"],
+  [72,"C5"],[75,"Ds5"],[78,"Fs5"],[81,"A5"]
+];
+const pianoBuffers=new Map(), pianoLoading=new Map();
+function ensureAudioContext(){
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended")audioCtx.resume();
+  return audioCtx;
+}
+function getPianoRoot(midi){
+  return pianoSampleRoots.reduce((closest,entry)=>Math.abs(entry[0]-midi)<Math.abs(closest[0]-midi)?entry:closest);
+}
+async function loadPianoSample(root){
+  if(pianoBuffers.has(root[0]))return pianoBuffers.get(root[0]);
+  if(!pianoLoading.has(root[0])){
+    const task=(async()=>{
+      const res=await fetch(pianoSampleBase+root[1]+".mp3");
+      if(!res.ok)throw new Error("Piano sample unavailable: "+root[1]);
+      const bytes=await res.arrayBuffer();
+      const buffer=await ensureAudioContext().decodeAudioData(bytes);
+      pianoBuffers.set(root[0],buffer);
+      return buffer;
+    })();
+    pianoLoading.set(root[0],task);
+    task.finally(()=>pianoLoading.delete(root[0])).catch(()=>{});
+  }
+  return pianoLoading.get(root[0]);
+}
+async function playEarNote(midi){
+  try{
+    const ctx=ensureAudioContext(),root=getPianoRoot(midi);
+    const buffer=await loadPianoSample(root);
+    const source=ctx.createBufferSource(),gain=ctx.createGain();
+    source.buffer=buffer;
+    source.playbackRate.value=Math.pow(2,(midi-root[0])/12);
+    const start=ctx.currentTime+.005;
+    const maxDuration=Math.min(3.2,buffer.duration/source.playbackRate.value);
+    gain.gain.setValueAtTime(.0001,start);
+    gain.gain.linearRampToValueAtTime(.72,start+.008);
+    gain.gain.setValueAtTime(.72,start+Math.max(.01,maxDuration-.20));
+    gain.gain.exponentialRampToValueAtTime(.0001,start+maxDuration);
+    source.connect(gain);gain.connect(ctx.destination);
+    source.start(start);source.stop(start+maxDuration+.01);
+  }catch(e){
+    console.warn("Acoustic piano sample could not load",e);
+    $("pianoSampleStatus").textContent="Piano sound unavailable. Connect to the internet and try a key again.";
+  }
+}
+function preloadPianoSamples(){
+  // Start loading in the background when the user opens Ear Training.
+  // The first key also works while other samples are still loading.
+  try{ensureAudioContext()}catch(e){return}
+  $("pianoSampleStatus").textContent="Loading acoustic piano samples…";
+  Promise.allSettled(pianoSampleRoots.map(loadPianoSample)).then(results=>{
+    $("pianoSampleStatus").textContent=results.some(r=>r.status==="rejected")
+      ?"Some piano sounds could not load. Internet connection required."
+      :"Acoustic piano · Yamaha C5 samples";
+  });
+}
+function buildEarKeyboard(){
+  const keyboard=$("earKeyboard");keyboard.replaceChildren();
+  const whiteNotes=[];
+  for(let midi=48;midi<=83;midi++){
+    const sharp=[1,3,6,8,10].includes(midi%12);
+    if(!sharp){const key=document.createElement("button");key.type="button";key.className="ear-white";key.dataset.note=midi;key.setAttribute("aria-label",`Play ${earLabel(midi)}`);key.title=earLabel(midi);keyboard.append(key);whiteNotes.push(midi)}
+  }
+  // Full three-octave keyboard, C3–B5. Black-key locations are percentages of white-key positions.
+  for(let midi=48;midi<=83;midi++){
+    if(![1,3,6,8,10].includes(midi%12))continue;
+    const leftWhites=whiteNotes.filter(n=>n<midi).length;
+    const key=document.createElement("button");key.type="button";key.className="ear-black";key.dataset.note=midi;key.setAttribute("aria-label",`Play ${earLabel(midi)}`);key.title=earLabel(midi);
+    key.style.left=`${100*leftWhites/whiteNotes.length}%`;
+    keyboard.append(key);
+  }
+  keyboard.setAttribute("aria-label","Interactive piano keyboard from C3 to B5");
+  // Each key is a real button, supporting mouse, touch and keyboard activation.
+  keyboard.addEventListener("click",event=>{
+    const key=event.target.closest("button[data-note]");
+    if(!key||!keyboard.contains(key))return;
+    playEarNote(Number(key.dataset.note));
+    key.classList.add("pressed");
+    clearTimeout(key.releaseTimer);
+    key.releaseTimer=setTimeout(()=>key.classList.remove("pressed"),180);
+  });
+}
+function highlightEarKeys(){
+  $("earKeyboard").querySelectorAll("[data-note]").forEach(key=>{
+    const midi=Number(key.dataset.note),ref=earReference===midi, answer=earPhase==="revealed"&&earTarget===midi;
+    key.classList.toggle("reference",ref&&!answer);
+    key.classList.toggle("target",answer&&!ref);
+    key.classList.toggle("both",ref&&answer);
+  });
+}
+function newEarChallenge(){
+  const [semitones,label]=earIntervals[Math.floor(Math.random()*earIntervals.length)];
+  const direction=Math.random()<.5?1:-1;
+  // Keeping targets within C3–B5 makes them visible on the keyboard.
+  const low=direction===1?48:48+semitones, high=direction===1?83-semitones:83;
+  earReference=low+Math.floor(Math.random()*(high-low+1));
+  earTarget=earReference+direction*semitones;
+  earChallenge={label,direction};earPhase="sing";
+  $("earSymbol").textContent="♫";animateEarSymbol();
+  $("earEyebrow").textContent="LISTEN AND SING";
+  $("earInterval").textContent=label;
+  $("earDirection").textContent=direction>0?"↑ Ascending":"↓ Descending";
+  $("earNote").textContent=`Reference: ${earLabel(earReference)}`;
+  $("earHint").textContent="Tap to reveal";
+  $("replayReference").hidden=false;
+  $("earInstructions").textContent="Sing the target without hearing it first. Tap the card to check your answer.";
+  highlightEarKeys();playEarNote(earReference);
+}
+function revealEarChallenge(){
+  earPhase="revealed";earCompleted++;
+  $("earCount").textContent=`${earCompleted} completed`;
+  $("earSymbol").textContent="♪";animateEarSymbol();
+  $("earEyebrow").textContent="ANSWER";
+  $("earNote").textContent=`${earLabel(earReference)} → ${earLabel(earTarget)}`;
+  $("earHint").textContent="Tap for a new interval";
+  $("earInstructions").textContent="The target note is highlighted in yellow and played aloud. Compare it with what you sang.";
+  highlightEarKeys();playEarNote(earTarget);
+}
+$("earCard").addEventListener("click",()=>{
+  if(earPhase==="sing")revealEarChallenge();else newEarChallenge();
+});
+$("replayReference").addEventListener("click",()=>{if(earReference!==null)playEarNote(earReference)});
+$("openEarTraining").addEventListener("click",()=>{embeddedOpen.ear=true;render();preloadPianoSamples();$("earTraining").scrollIntoView({behavior:"smooth",block:"start"});});
+$("closeEarTraining").addEventListener("click",()=>{embeddedOpen.ear=false;render()});
+buildEarKeyboard();
 
 function renderEditor(){
   const wrap=$("editRows");wrap.replaceChildren();
