@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#20252b">
+  <meta name="theme-color" content="#090d15">
   <meta name="description" content="A personal timer for your daily piano practice plan.">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  
+  
   <title>Piano Practice</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJiIiB4MT0iMCIgeDI9IjAiIHkxPSIwIiB5Mj0iMSI+PHN0b3Agc3RvcC1jb2xvcj0iIzRkYTdmZiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAwNjJlNSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgcng9IjE1IiBmaWxsPSJ1cmwoI2IpIi8+PHBhdGggZD0iTTE1IDE2SDI1VjM1UTI1IDM3IDI4IDM3VjUwSDE1Wk0zMSAxNkgzOFYzNVEzOCAzNyA0MCAzN1Y1MEgyOVYzN1EzMSAzNyAzMSAzNVpNNDQgMTZINTFWNTBINDFWMzdRNDQgMzcgNDQgMzVaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==">
   <style>
     :root{color-scheme:dark;--bg:#171a1f;--panel:#222730;--panel2:#292f39;--line:#39414d;--text:#f4f5f7;--muted:#aab2bf;--accent:#a8d5c2;--accentText:#10231c;--warn:#f2c879}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
@@ -15,6 +16,9 @@
     header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:22px}
     h1{font-size:1.35rem;margin:0} .sub{color:var(--muted);font-size:.9rem;margin-top:3px}
     .pill{border:1px solid var(--line);border-radius:999px;padding:7px 11px;color:var(--muted);font-size:.82rem;white-space:nowrap}
+    .header-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+    .header-actions #reset{padding:7px 11px;font-size:.82rem;border-radius:999px;white-space:nowrap}
+    @media(max-width:480px){header{align-items:flex-start}.header-actions{flex-direction:column;align-items:flex-end;gap:6px}}
     .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
     .timer{text-align:center}
     .eyebrow{font-size:.76rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
@@ -34,203 +38,377 @@
     #schedule{display:grid;gap:8px}
     .item{width:100%;color:var(--text);text-align:left;font-weight:400;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.91rem}
     .item:hover{border-color:var(--accent)}
+    .edit-row{display:grid;grid-template-columns:38px minmax(0,1fr) 83px 35px;gap:6px;align-items:center}
+    .edit-row input{min-width:0;width:100%;padding:10px 7px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text)}
+    .drag-handle{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:1.45rem;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;padding:0}
+    .drag-handle:active{cursor:grabbing}
+    .edit-row.dragging{opacity:.58;border:1px dashed var(--accent);border-radius:10px;background:var(--panel2)}
+    .edit-row.drag-target{outline:2px solid var(--accent);outline-offset:2px;border-radius:9px}
+    .edit-row .move-btn{padding:9px 0;text-align:center;font-size:1rem}
+    @media(max-width:480px){.edit-row{grid-template-columns:32px minmax(0,1fr) 62px 29px;gap:4px}.edit-row input{padding:9px 5px;font-size:.85rem}.edit-row .move-btn{padding:8px 0}}
+    #schedule .edit-row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 9px}
+    #schedule .edit-row input{font-size:.91rem}
+    #finishEarly{border-color:var(--accent);color:var(--accent)}
+    #finishEarly:disabled{opacity:.4}
     .item:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
     .item.current{border-color:var(--accent);background:#26352f}
     .item.done{opacity:.55}.item .left{display:flex;gap:10px;align-items:center;min-width:0}.item .name{overflow-wrap:anywhere}
     .dot{color:var(--muted);width:15px}.current .dot{color:var(--accent)}.duration{color:var(--muted);white-space:nowrap}
     footer{color:var(--muted);font-size:.8rem;margin-top:20px;text-align:center}
 
-    #openChordDice,#openEarTraining{display:none!important}
-    .plan-group{display:grid;gap:7px}
-    .embedded-toggle{justify-self:start;border:1px solid var(--line);background:var(--panel2);color:var(--accent);padding:7px 12px;font-size:.79rem;border-radius:9px;margin:0 0 2px 14px}
-    .embedded-panel{margin:0 0 9px 0!important;padding:16px!important;border-color:#4a5e55}
-    .embedded-panel .dice-head>div>.muted{font-size:.78rem}
-    .embedded-panel .dice-card{min-height:165px;padding:18px 12px}
-    .embedded-panel #diceChord{font-size:clamp(2.4rem,9vw,4rem)}
-    .embedded-panel .ear-keyboard{height:125px}
-    @media(max-width:480px){.embedded-panel{padding:12px!important}.embedded-panel .ear-keyboard{height:108px}}
     #chordDice{margin-top:18px}
     .dice-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .dice-progress{height:8px;background:#3a414b;border-radius:10px;overflow:hidden;margin:10px 0 16px}
     #diceBar{height:100%;width:0;background:var(--accent);transition:width .2s}
-    .dice-card{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:30px 16px;text-align:center;min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s,background .2s,transform .2s}
-    .dice-card:hover{border-color:var(--accent);background:#303943}
-    .dice-card:active{transform:scale(.99)}
-    .dice-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-    .dice-card:disabled{opacity:1;cursor:wait}
-    .dice-card:disabled:hover{background:var(--panel2)}
-    #diceChord{font-size:clamp(3rem,12vw,5.5rem);font-weight:750;letter-spacing:-.06em;line-height:1.1}
-    #diceAnswer{color:var(--muted);font-size:.9rem;line-height:1.65}
-    .answer-actions{text-align:center;margin-top:12px}
-    #toggleDiceAnswer{font-size:.8rem;padding:7px 12px;border-radius:8px}
-    [hidden]{display:none!important}
-    .dice-icon{font-size:3rem;display:inline-block;line-height:1;min-height:3rem}
-    .dice-hint{font-size:.82rem;color:var(--accent);font-weight:600;letter-spacing:.02em}
-    .dice-icon.rolling{animation:diceTumble .7s cubic-bezier(.2,.7,.2,1)}
-    @keyframes diceTumble{0%{transform:rotate(0) scale(1)}25%{transform:rotate(130deg) scale(1.25)}55%{transform:rotate(310deg) scale(.85)}80%{transform:rotate(460deg) scale(1.15)}100%{transform:rotate(720deg) scale(1)}}
-    @media(prefers-reduced-motion:reduce){.dice-icon.rolling{animation:none}}
+    #drawChord{width:100%;margin-top:12px;min-height:156px;padding:21px 12px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:17px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:7px;transition:border-color .15s,background .15s,transform .15s}
+    #drawChord:not(:disabled):hover{border-color:var(--accent);background:#303b3a;transform:translateY(-1px)}
+    #drawChord:disabled{opacity:1;cursor:default}
+    #drawChord:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    #diceChord{font-size:clamp(2rem,7vw,4.2rem);font-weight:750;letter-spacing:-.06em;line-height:1.12}
+    #dicePrompt{font-size:.84rem;font-weight:450;color:var(--muted)}
+    #diceAnswer{color:var(--muted);font-size:.98rem;line-height:1.65;text-align:center;padding:13px 8px 4px}
+    .die-animation{display:none;font-size:clamp(4.8rem,15vw,6.4rem);line-height:1;color:var(--accent);filter:drop-shadow(0 12px 13px #0006);transform-origin:50% 50%;user-select:none}
+    .die-animation.rolling{display:block;animation:die-tumble .72s cubic-bezier(.23,.7,.3,1) both}
+    @keyframes die-tumble{0%{transform:translateY(-32px) rotate(-40deg) scale(.65);opacity:.5}35%{transform:translateY(10px) rotate(155deg) scale(1.18);opacity:1}70%{transform:translateY(-11px) rotate(300deg) scale(.95)}100%{transform:translateY(0) rotate(360deg) scale(1)}}
+    .dice-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:10px}
+    .dice-actions button{flex:1;min-width:130px}
+    @media(prefers-reduced-motion:reduce){.die-animation.rolling{animation:none}#drawChord{transition:none}}
     #diceHistory{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
     .history-chip{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:5px 9px;color:var(--muted);font-size:.8rem}
     .history-chip.current{border-color:var(--accent);color:var(--text)}
 
-    #earTraining{margin-top:18px}
-    .ear-card{width:100%;min-height:134px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:15px 14px;text-align:center;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
-    .ear-card:hover{background:#303943;border-color:var(--accent)}
-    .ear-card:active{transform:scale(.99)}
-    .ear-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
-    .ear-symbol{font-size:1.5rem;line-height:1;min-height:1.5rem;color:var(--accent);display:inline-block}
-    .ear-symbol.pulse{animation:earBounce .5s ease-out}
-    @keyframes earBounce{0%{transform:scale(.8);opacity:.5}50%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
-    @media(prefers-reduced-motion:reduce){.ear-symbol.pulse{animation:none}}
-    .ear-piano-wrap{margin-top:4px;padding:11px 12px 10px;background:var(--panel2);border:1px solid var(--line);border-radius:14px}
-    .ear-piano-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .ear-piano-head strong{font-size:.85rem}
-    .ear-piano-head span{color:var(--muted);font-size:.76rem}
-    .ear-session-count{color:var(--muted);font-size:.8rem}
-    #earInterval{font-size:clamp(1.6rem,6vw,2.3rem);font-weight:750;letter-spacing:-.035em;line-height:1.14}
-    #earNote{font-size:.9rem;color:var(--accent);font-weight:650}
-    #earDirection{font-size:1rem;color:var(--muted);font-weight:650;letter-spacing:.015em;min-height:1em}
-    #earTraining .answer-actions{margin-top:7px}
-    #earTraining #replayReference{padding:6px 11px;font-size:.77rem}
-    .ear-keyboard{position:relative;display:flex;width:100%;height:145px;margin:12px auto 10px;max-width:600px;border:2px solid #11161d;border-radius:0 0 8px 8px;overflow:hidden;touch-action:manipulation}
-    .ear-keyboard .ear-white,.ear-keyboard .ear-black{cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;appearance:none;padding:0;font:inherit;outline-offset:-3px}
-    .ear-keyboard .ear-white:focus-visible,.ear-keyboard .ear-black:focus-visible{outline:3px solid #6bc9ff;z-index:3}
-    .ear-keyboard .ear-white.pressed{background:linear-gradient(#afd9ff,#70a9e2);box-shadow:inset 0 2px 9px #16497360}
-    .ear-keyboard .ear-black.pressed{background:linear-gradient(#6ca2d8,#24507f);box-shadow:0 0 0 2px #a6d8ff}
-    .ear-white{position:relative;flex:1;min-width:0;height:100%;background:linear-gradient(#fff,#e5e9ed);border-right:1px solid #8b949e;border-radius:0 0 4px 4px}
-    .ear-white:last-child{border-right:0}
-    .ear-black{position:absolute;top:0;width:calc(100% / 21 * .59);height:59%;background:linear-gradient(#333b45,#080d13);border:1px solid #0c1014;border-radius:0 0 5px 5px;z-index:2;transform:translateX(-50%);box-shadow:1px 2px 3px #0006}
-    .ear-white.reference{background:linear-gradient(#b8f5dc,#6abb9b)}
-    .ear-black.reference{background:linear-gradient(#84d9b6,#2a8465)}
-    .ear-white.target{background:linear-gradient(#f9e8aa,#e6b65d)}
-    .ear-black.target{background:linear-gradient(#ffdf83,#b88226)}
-    .ear-white.both{background:linear-gradient(120deg,#81cba9 49%,#f5d78a 51%)}
-    .ear-black.both{background:linear-gradient(120deg,#3a9876 49%,#c69332 51%)}
-    .ear-legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:.8rem}
-    .ear-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:#80cba7}
-    .ear-legend .target-dot{background:#efca77}
-    .ear-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
-    #replayReference{font-size:.82rem;padding:8px 12px}
     .alert{animation:pulse 1s ease-in-out 3}
     @keyframes pulse{50%{border-color:var(--warn);box-shadow:0 0 0 3px #f2c87933}}
     @media(max-width:480px){main{padding:20px 13px 35px}.panel{padding:18px 14px}.pill{font-size:.75rem}}
-  </style>
+    #chordDice{margin-top:18px}
+    #earTraining{margin-top:18px}
+    #progressionGenerator{margin-top:18px}
+    #generateKey{width:100%;min-height:132px;margin-top:12px;background:var(--panel2);color:var(--accent);border:1px solid var(--line);border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:clamp(1.5rem,5.5vw,3.1rem);font-weight:750;letter-spacing:-.035em;transition:background .15s,border-color .15s}
+    #generateKey:hover{border-color:var(--accent);background:#303b3a}
+    #generateKey:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    #generateKey.key-empty{font-size:clamp(1.1rem,3.5vw,1.6rem);letter-spacing:.035em}
+
+    .ear-top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+    .ear-challenge{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;height:180px;min-height:180px;text-align:center;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:17px;padding:13px 12px;margin:11px 0;transition:transform .15s,border-color .15s,background .15s}
+    .ear-challenge:hover{border-color:var(--accent);background:#303b3a;transform:translateY(-1px)}
+    .ear-challenge:active{transform:scale(.99)}
+    .ear-challenge:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    /* Compact initial state, with the same fixed card height. */
+    #earRoot.ear-start{font-size:clamp(1.3rem,4vw,2.1rem);font-weight:650;letter-spacing:-.02em;color:var(--accent)}
+    #earCardPrompt{display:none}
+    /* Empty interval/hint elements must not occupy space before starting. */
+    #earInterval:empty,#earHint:empty{display:none}
+    #earChallenge:has(#earRoot.ear-start){gap:0}
+    .ear-hint{color:var(--muted);font-size:.84rem;font-weight:450;line-height:1.3}
+    .ear-note{display:block;color:var(--accent);font-size:clamp(2rem,7vw,4.2rem);font-weight:750;letter-spacing:-.06em;line-height:1.12}
+    [hidden]{display:none!important}
+    .ear-note.revealed{color:#e5b15d}
+    .ear-interval{min-height:1.12em;font-size:clamp(1.55rem,5.4vw,3.25rem);font-weight:750;line-height:1.12;letter-spacing:-.04em;color:var(--text);margin:2px 0;text-wrap:balance}
+    .ear-buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+    .ear-buttons button{flex:1;min-width:140px}
+    .ear-response{min-height:34px;text-align:center;margin:13px 0;color:var(--muted)}
+    .piano-scroll{width:100%;overflow:hidden;padding:10px 0 13px}
+    .piano{display:flex;position:relative;height:clamp(125px,23vw,174px);width:100%;user-select:none;-webkit-user-select:none;align-items:stretch}
+    .pkey{position:relative;flex:1 1 0;min-width:0;height:100%;border:1px solid #9299a2;border-radius:0 0 6px 6px;background:linear-gradient(#fff,#e2e4e7);color:#30353c;cursor:pointer;display:flex;align-items:end;justify-content:center;padding:0 0 9px;font:600 clamp(.49rem,1.4vw,.75rem) system-ui;touch-action:manipulation}
+    .pkey.black{position:absolute;z-index:2;width:4.1%;height:61%;border:1px solid #111;transform:translateX(-50%);background:linear-gradient(105deg,#34363c,#090a0d);color:#f4f5f7;padding-bottom:7px;box-shadow:1px 4px 4px #0006}
+    .pkey.played{filter:brightness(.89)}
+    .pkey:focus-visible{outline:3px solid var(--accent);outline-offset:2px;z-index:5}
+    .pkey.root{background:linear-gradient(#a8d5c2,#6dbd99);color:#10231c}
+    .pkey.black.root{background:linear-gradient(#66bd9a,#2b7459);color:white}
+    .pkey.target{background:linear-gradient(#ffe2a4,#e5b15d);color:#493314;box-shadow:inset 0 -5px 0 #c68b32}
+    .pkey.black.target{background:linear-gradient(#dfad5e,#966621);color:#fff}
+    .pkey.root::after,.pkey.target::after{content:attr(data-marker);position:absolute;bottom:28px;font-size:clamp(.5rem,1.45vw,.75rem);font-weight:800;white-space:nowrap;z-index:4}
+    .pkey.black.root::after,.pkey.black.target::after{bottom:24px;font-size:clamp(.42rem,1.1vw,.64rem)}
+    .ear-help{font-size:.82rem;color:var(--muted);margin-top:6px}
+    @media(max-width:480px){.piano{height:138px}.pkey{padding-bottom:7px}.pkey.root::after,.pkey.target::after{writing-mode:vertical-rl;bottom:20px}}
+    #planHint:empty,#dicePrompt:empty,#earSoundStatus:empty,#status:empty{display:none}
+  #details[hidden]{display:none}
+
+/* Apple-inspired blue UI redesign: existing app functionality preserved */
+:root{color-scheme:light;--bg:#eef4fd;--panel:rgba(255,255,255,.88);--panel2:#f3f7ff;--line:#dce5f2;--text:#182339;--muted:#68778e;--accent:#1677f5;--accentText:#fff;--warn:#cb8b24}
+html{min-height:100%;background:linear-gradient(135deg,#e9f4ff,#f8faff 47%,#e9f1fc)}
+body{min-height:100vh;background:radial-gradient(ellipse at 14% 0%,#d9eaff 0%,transparent 48%),radial-gradient(ellipse at 100% 100%,#dceaff 0%,transparent 43%);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;color:var(--text)}
+main{max-width:1320px;margin:28px auto;padding:0 25px 30px}
+header{padding:18px 24px;border:1px solid rgba(255,255,255,.92);background:rgba(255,255,255,.76);box-shadow:0 12px 36px #3a64901a,0 1px 2px #3a649015;border-radius:24px;margin-bottom:18px;backdrop-filter:blur(25px)}
+h1{font-weight:720;font-size:1.6rem;letter-spacing:-.045em}h1:before{content:'🎹';font-size:1.25rem;margin-right:13px;vertical-align:2px}
+.header-actions{gap:12px}.pill{border:0;background:#e8f6ed;color:#28774c;font-weight:650;font-size:.87rem;padding:9px 14px}.pill:before{content:'●';font-size:.66rem;margin-right:8px;color:#26b36a}
+.header-actions #reset{background:#f2f6ff;font-size:.82rem;color:#334a6b;padding:10px 15px;border:1px solid #dfebf9}
+.apple-layout{display:grid;grid-template-columns:minmax(280px,.83fr) minmax(360px,1.17fr);gap:20px;align-items:start}
+.apple-sidebar,.apple-workspace{min-width:0}.apple-sidebar{border-radius:25px;background:rgba(255,255,255,.78);border:1px solid white;box-shadow:0 14px 40px #40648e17;backdrop-filter:blur(18px);padding:20px}.apple-workspace{display:grid;gap:16px}
+.apple-sidebar .sectionhead{margin:0 2px 12px}.apple-sidebar .sectionhead h2{font-size:1.18rem;letter-spacing:-.03em}.apple-sidebar .sectionhead #completed{font-size:.76rem}
+.apple-sidebar #schedule{gap:8px}.apple-sidebar .item{background:#f6f8fd;border:1px solid #eef1f8;border-radius:13px;padding:13px 14px;font-weight:550;box-shadow:none}.apple-sidebar .item.current{background:linear-gradient(110deg,#d7e9ff,#eaf3ff);border-color:#bad8ff;color:#153a72}.apple-sidebar .item .duration{color:#475c79;background:#fff;border-radius:9px;padding:5px 9px;font-weight:620;font-variant-numeric:tabular-nums}.apple-sidebar .item.current .duration{color:#1265d3}.apple-sidebar .dot{color:#a8b8cd}.apple-sidebar .current .dot{color:#1178f7}
+.apple-sidebar .muted{color:#78889f}.apple-sidebar #toggleEditor{font-size:.86rem;padding:10px 16px}.apple-sidebar .editor-toggle-wrap{display:flex;justify-content:flex-end;margin:0 0 11px}.apple-sidebar .edit-row{background:#f6f8fd!important;border-color:#e5ecf6!important}.edit-row input{background:white;color:#17243c;border-color:#d7e3f1}.drag-handle{background:white;color:#7a91ac;border-color:#d7e3f1}
+.panel{background:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.97);border-radius:25px;box-shadow:0 14px 40px #40648e17;backdrop-filter:blur(20px);padding:25px}
+#timerPanel{padding:30px 25px 25px}.eyebrow{color:#8292a8;font-size:.69rem;letter-spacing:.12em}#exercise{font-weight:720;font-size:clamp(1.35rem,3vw,1.95rem);margin:4px 0 15px;letter-spacing:-.035em}
+.timer-face{width:min(330px,85%);aspect-ratio:1/1;position:relative;margin:12px auto 19px;display:grid;place-items:center;}
+.timer-face:before{content:'';position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--accent) var(--progress,0%),#dce8f7 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px));mask:radial-gradient(farthest-side,transparent calc(100% - 12px),#000 calc(100% - 11px))}
+#clock{font-size:clamp(3.5rem,6vw,5.7rem);margin:0;font-weight:720;letter-spacing:-.075em;position:relative}#timerPanel .track{display:none}#timerPanel .status{min-height:0;margin:0}#timerPanel .controls{margin-top:13px;gap:13px}
+button{font-family:inherit;transition:filter .15s,transform .15s,background .15s}button:hover:not(:disabled){filter:brightness(.98)}button:active:not(:disabled){transform:scale(.98)}.primary{background:linear-gradient(160deg,#339bff,#0868ec);color:#fff;box-shadow:0 5px 13px #137ef337}.secondary{background:#f4f7fc;color:#36465f;border:1px solid #dce5f2}
+#start{border-radius:50%;height:62px;width:62px;font-size:0;padding:0;position:relative}#start:after{content:'▶';font-size:1.4rem}#start:disabled:after{content:'▶'}#pause{border-radius:50%;height:53px;width:53px;font-size:0;padding:0}#pause:after{content:'Ⅱ';font-size:1.3rem}#finishEarly{border-radius:50%;height:53px;width:53px;font-size:0;padding:0;border:1px solid #bfdaf9;color:#1177f8}#finishEarly:after{content:'✓';font-size:1.45rem}
+#chordDice,#earTraining,#progressionGenerator{margin-top:0}.dice-progress{background:#e2eaf4}.dice-progress #diceBar{background:#1677f5}#drawChord,#generateKey,.ear-challenge{background:#f5f9ff;border-color:#dbe9fa;color:#1579ef}#drawChord:not(:disabled):hover,#generateKey:hover,.ear-challenge:hover{background:#e9f4ff;border-color:#86bdf8}#diceChord,#earRoot{color:#1677f5}.ear-note.revealed{color:#d6a344}.pkey.root{background:linear-gradient(#a9d3fc,#60a9f5);color:#103b69}.pkey.black.root{background:linear-gradient(#4a96ea,#1c56a1)}.pkey.target{background:linear-gradient(#f7dda2,#d6a344)}
+#planHint{display:none}.apple-sidebar #editActions{margin-bottom:8px}.apple-sidebar .sectionhead{align-items:start}
+@media(max-width:800px){main{margin:10px auto;padding:0 12px 24px}.apple-layout{grid-template-columns:1fr;gap:13px}.apple-workspace{grid-row:1}.apple-sidebar{grid-row:2}.timer-face{width:min(265px,78%)}header{padding:15px 16px;border-radius:18px}.panel,.apple-sidebar{border-radius:20px;padding:18px}#timerPanel{padding:23px 15px}.apple-sidebar #schedule{max-height:none}}
+@media(max-width:470px){h1{font-size:1.2rem}h1:before{margin-right:7px}.header-actions{gap:6px}.header-actions #reset{font-size:.72rem;padding:8px 10px}.pill{font-size:.72rem;padding:7px}.timer-face{width:min(245px,80%)}#clock{font-size:3.9rem}}
+
+
+/* Piano Practice — macOS-inspired Midnight Blue */
+:root{
+  color-scheme:dark;
+  --bg:#090d15;
+  --panel:rgba(24,30,43,.95);
+  --panel2:#222b3a;
+  --line:#303c50;
+  --text:#f4f7fc;
+  --muted:#a0aec2;
+  --accent:#3797ff;
+  --accentText:#fff;
+  --warn:#f4c574;
+}
+html{background:#090d15}
+body{
+  background:radial-gradient(ellipse at 11% 6%,rgba(37,72,122,.28),transparent 42%),
+    radial-gradient(ellipse at 99% 87%,rgba(20,82,133,.18),transparent 38%),#090d15;
+  color:var(--text);
+}
+header{
+  background:rgba(23,29,42,.87);
+  border:1px solid rgba(108,133,175,.17);
+  box-shadow:0 12px 38px rgba(0,0,0,.21),inset 0 1px 0 rgba(255,255,255,.035);
+}
+.apple-sidebar,.panel{
+  background:rgba(23,29,42,.92);
+  border:1px solid rgba(118,145,186,.17);
+  box-shadow:0 18px 48px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.035);
+}
+.apple-sidebar .item{
+  background:rgba(40,49,67,.67);
+  border-color:rgba(110,136,178,.1);
+  color:#eaf0fc;
+}
+.apple-sidebar .item:hover{background:#293a51;border-color:#5a90cf}
+.apple-sidebar .item.current{
+  background:linear-gradient(110deg,rgba(39,97,160,.56),rgba(31,69,114,.56));
+  border-color:rgba(80,162,255,.64);
+  color:#f7faff;
+}
+.apple-sidebar .item .duration{
+  color:#c3d1e5;
+  background:#293448;
+  border:1px solid rgba(144,170,208,.13);
+}
+.apple-sidebar .item.current .duration{color:#a9d4ff;background:#233e5e}
+.apple-sidebar .dot{color:#8798b0}.apple-sidebar .current .dot{color:#63aeff}
+.apple-sidebar .muted{color:#a3b1c5}
+.apple-sidebar .edit-row{background:#222b3a!important;border-color:#334154!important}
+.edit-row input{background:#161e2b;color:#f3f7ff;border-color:#3a4b61}
+.edit-row input:focus{outline:2px solid #4298f8;outline-offset:1px}
+.drag-handle{background:#283447;color:#a6b9d1;border-color:#40526b}
+.pill{background:#163b2d;color:#7de0ae;border:1px solid rgba(87,205,144,.19)}
+.pill:before{color:#55d28a}
+.header-actions #reset{background:#252f41;color:#edf2fb;border-color:#3c4c63}
+.eyebrow{color:#8fa2bc}
+#exercise,#clock{color:#f7f9ff}
+.timer-face:before{background:conic-gradient(var(--accent) var(--progress,0%),#344055 0)}
+.secondary{background:#2a3446;color:#e1e9f6;border-color:#41516a}
+.secondary:hover:not(:disabled){background:#35425a;filter:none}
+.primary{background:linear-gradient(160deg,#53abff,#167bfa);color:#fff;box-shadow:0 6px 16px rgba(14,107,241,.23)}
+#finishEarly{background:#293448;color:#8bc4ff;border-color:#476d9b}
+.dice-progress{background:#343f52}
+.dice-progress #diceBar{background:var(--accent)}
+#drawChord,#generateKey,.ear-challenge{background:#1c293b;border-color:#354b69;color:#8bc3ff}
+#drawChord:not(:disabled):hover,#generateKey:hover,.ear-challenge:hover{background:#243b59;border-color:#5baaff;filter:none}
+#diceChord,#earRoot{color:#5aaaff}
+.ear-note.revealed,#earRoot.revealed{color:#edc36b}
+#diceAnswer,#earFeedback{color:#c7d1df}
+.history-chip{background:#202b3a;color:#cbd5e3;border-color:#3a4c63}
+.history-chip.current{border-color:#5aaaff;color:#eaf4ff}
+.pkey.root{background:linear-gradient(#9cd0ff,#469bf5);color:#123a66}
+.pkey.black.root{background:linear-gradient(#458ddd,#1c4b92);color:white}
+.pkey.target{background:linear-gradient(#ffe6b3,#e4b85e);color:#3e2a0d}
+.pkey.black.target{background:linear-gradient(#dbab58,#88581c);color:white}
+.piano-scroll{border-radius:14px}
+#earSoundStatus{color:#b4c1d4}
+@media(max-width:800px){.apple-sidebar,.panel{box-shadow:0 8px 24px rgba(0,0,0,.22)}}
+
+
+/* Apple-inspired launch icons: same three blue outlined symbols as the UI concept. */
+.starter-svg{display:block;width:49px;height:49px;color:#3193ff;flex:none;overflow:visible}
+.starter-stack{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;line-height:1.1}
+.starter-label{color:#a9b8ca;font-size:.78rem;font-weight:650;letter-spacing:.075em;white-space:nowrap}
+#diceChord .starter-svg{width:53px;height:53px}
+#diceChord:has(.starter-svg){display:flex;justify-content:center;align-items:center}
+#drawChord:has(#diceChord .starter-svg) #diceEyebrow{order:2}
+#earRoot.ear-start:has(.starter-stack){display:flex;align-items:center;justify-content:center}
+#generateKey.key-empty:has(.starter-stack){align-items:center;justify-content:center}
+#earRoot .starter-label,#generateKey .starter-label{font-size:.78rem;letter-spacing:.08em;color:#b9c8da}
+@media(max-width:480px){.starter-svg{width:45px;height:45px}#diceChord .starter-svg{width:49px;height:49px}}
+
+/* Initial die is the exact same filled 2D symbol used in the roll animation. */
+.die-animation.die-idle{display:block;font-weight:400;letter-spacing:normal}
+#diceChord:has(.die-idle){display:flex;justify-content:center;align-items:center}
+#drawChord:has(.die-idle) #diceEyebrow{order:2}
+
+/* Key Generator: equal footprint to Ear Training in every state. */
+#generateKey{
+  width:100%;
+  height:180px;
+  min-height:180px;
+  margin:11px 0;
+  padding:13px 12px;
+  border-radius:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:clamp(1.55rem,5.4vw,3.25rem);
+  line-height:1.12;
+  font-weight:750;
+  letter-spacing:-.04em;
+  text-wrap:balance;
+}
+#generateKey.key-empty{
+  font-size:clamp(1.3rem,4vw,2.1rem);
+  letter-spacing:-.02em;
+}
+#generateKey .starter-stack{gap:8px}
+#generateKey .starter-svg{width:49px;height:49px}
+#generateKey .starter-label{font-size:.78rem;font-weight:650;letter-spacing:.08em}
+@media(max-width:480px){#generateKey .starter-svg{width:45px;height:45px}}
+
+
+/* Piano app icon based on the original Apple-style blue square / white keys reference. */
+h1.brand-title{display:flex;align-items:center;gap:13px;font-weight:720;letter-spacing:-.04em}
+h1.brand-title:before{content:none!important;display:none!important}
+.brand-icon{display:block;width:44px;height:44px;flex:0 0 44px;overflow:visible;filter:drop-shadow(0 3px 7px rgba(0,107,235,.24))}
+@media(max-width:470px){h1.brand-title{gap:9px}.brand-icon{width:37px;height:37px;flex-basis:37px}}
+
+</style>
 </head>
 <body>
 <main>
   <header>
-    <div><h1>Piano Practice</h1></div>
-    <div class="pill" id="sessionState">Ready to start</div>
+    <div><h1 class="brand-title"><svg class="brand-icon" viewBox="0 0 64 64" role="img" aria-label="Piano Practice" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brand-blue" x1="0" x2=".2" y1="0" y2="1">
+      <stop offset="0" stop-color="#4da7ff"/><stop offset=".52" stop-color="#1884ff"/><stop offset="1" stop-color="#0062e5"/>
+    </linearGradient>
+    <linearGradient id="brand-white" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#f5f9ff"/></linearGradient>
+  </defs>
+  <rect x="1" y="1" width="62" height="62" rx="14.5" fill="url(#brand-blue)"/>
+  <path d="M15 17 Q15 15 17 15 H23 Q25 15 25 17 V35 Q25 37 28 37 V48 Q28 50 26 50 H17 Q15 50 15 48Z" fill="url(#brand-white)"/>
+  <path d="M31 17 Q31 15 33 15 H36 Q38 15 38 17 V35 Q38 37 40 37 V48 Q40 50 38 50 H31 Q29 50 29 48 V37 Q31 37 31 35Z" fill="url(#brand-white)"/>
+  <path d="M44 17 Q44 15 46 15 H49 Q51 15 51 17 V48 Q51 50 49 50 H43 Q41 50 41 48 V37 Q44 37 44 35Z" fill="url(#brand-white)"/>
+</svg><span>Piano Practice</span></h1></div>
+    <div class="header-actions"><div class="pill" id="sessionState">Ready to start</div><button class="secondary" id="reset" type="button">Restart plan</button></div>
   </header>
 
-  <section class="panel timer" id="timerPanel" aria-live="polite">
+<section class="panel timer practice-only" id="timerPanel" aria-live="polite">
     <div class="eyebrow" id="stepLabel">Step 1 of 10</div>
     <div id="exercise">Ear training</div>
     <div id="clock">12:00</div>
     <div class="track"><div id="bar"></div></div>
     <div id="details" hidden>12 minutes</div>
-    <div class="status" id="status" role="status" hidden></div>
+    <div class="status" id="status" role="status">Ready</div>
     <div class="controls">
       <button class="primary" id="start">Start</button>
       <button class="secondary" id="pause" disabled>Pause</button>
-      <button class="secondary" id="reset">Restart plan</button>
+      <button class="secondary" id="finishEarly" type="button">Finish ✓</button>
     </div>
-    <button class="primary" id="next" hidden>OK, next exercise</button>
-    <button class="secondary" id="openChordDice" hidden type="button">Open chord dice · 36 chords</button>
-    <button class="secondary" id="openEarTraining" hidden type="button">Open ear training · Singing intervals</button>
+    <button class="primary" id="next" hidden>Next exercise</button>
   </section>
 
-  <section class="panel" id="chordDice" hidden aria-label="Chord dice practice">
+  <section class="panel dice-only" id="chordDice" aria-label="Chord dice practice" hidden>
     <div class="dice-head">
-      <div><h2>Chord dice</h2><div class="muted">Draw all 36 seventh chords in random order, without repeats.</div></div>
-      <button class="secondary" id="closeChordDice" type="button">Close</button>
+      <div><h2>Chord Dice</h2><div class="muted"></div></div>
     </div>
     <div class="dice-progress"><div id="diceBar"></div></div>
     <div class="dice-head">
       <span class="muted" id="diceCount">0 of 36 drawn</span>
       <span class="muted" id="diceRemaining">36 remaining</span>
     </div>
-    <button class="dice-card" id="drawChord" style="margin-top:12px" type="button" aria-label="Roll the dice to draw a chord">
-      <span class="eyebrow" id="diceEyebrow">CHORD DICE</span>
-      <span class="dice-icon" id="diceIcon" aria-hidden="true">⚄</span>
-      <span id="diceChord">Ready?</span>
-      <span class="muted" id="dicePrompt">Draw a chord, identify it and play it on the piano.</span>
-      <span class="dice-hint" id="rollLabel">Tap here to roll the dice</span>
+    <button id="drawChord" type="button" aria-label="Roll the dice">
+      <span class="eyebrow" id="diceEyebrow">TAP TO ROLL</span>
+      <span class="die-animation" id="rollingDie" aria-hidden="true">⚄</span>
+      <span id="diceChord"></span>
+      <span id="dicePrompt"></span>
     </button>
-    <div class="answer-actions"><button class="secondary" id="toggleDiceAnswer" type="button" aria-expanded="false" aria-controls="diceAnswer" hidden>Reveal answer</button></div>
-    <div id="diceAnswer" class="muted" hidden style="text-align:center;margin-top:10px"></div>
-    <div class="dice-head" style="margin-top:18px"><h2>Drawn this round</h2><span class="muted">No repeats</span></div>
+    <div id="diceAnswer" hidden aria-live="polite"></div>
+    <div class="dice-actions">
+      <button class="secondary" id="revealChord" type="button" disabled>Reveal answer</button>
+    </div>
+    <div class="dice-head" style="margin-top:18px"><h2>History</h2></div>
     <div id="diceHistory" aria-live="polite"></div>
-
+    <div class="dice-actions">
+      <button class="secondary" id="reshuffleDice" type="button">Restart round</button>
+    </div>
   </section>
 
-  <section class="panel" id="earTraining" hidden aria-label="Ear training practice">
-    <button class="secondary" id="closeEarTraining" type="button" hidden>Close</button>
-    <div class="dice-head" style="margin-bottom:5px">
-      <span class="ear-session-count" id="earCount">0 completed</span>
-    </div>
-    <button class="ear-card" id="earCard" type="button" style="margin-top:8px" aria-label="Start ear training interval">
-      <span class="eyebrow" id="earEyebrow" hidden>EAR TRAINING</span>
-      <span class="ear-symbol" id="earSymbol" aria-hidden="true">♫</span>
-      <span id="earInterval">Ready?</span>
-      <span id="earDirection" aria-live="polite"></span>
-      <span id="earNote">Listen, then sing the target note</span>
-      <span class="dice-hint" id="earHint">Tap here to start</span>
+  <section class="panel ear-only" id="earTraining" aria-label="Ear training" hidden>
+    <div class="ear-top"><div><h2>Ear Training</h2><div class="muted"></div></div><span class="pill" id="earScore">0</span></div>
+    <button class="ear-challenge" id="earChallenge" type="button" aria-label="Get a new interval">
+      <span class="eyebrow" id="earCardPrompt"></span>
+      <span class="ear-note ear-start" id="earRoot"><span class="starter-stack"><svg class="starter-svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22.4v-2.6a12.6 12.6 0 0 1 25.2 0c0 8.1-5.9 11.3-10.2 14.6-3.1 2.4-3.4 7.6-9.4 7.6-4.8 0-7.6-3.5-7.6-7.7"/><path d="M19 23v-3.4a5.6 5.6 0 0 1 11.2 0c0 3-1.7 5.3-4.1 6.8-2.4 1.5-3.7 2.8-3.7 5.5"/></svg><span class="starter-label">TAP TO START</span></span></span>
+      <span class="ear-interval" id="earInterval"></span>
+      <span class="ear-hint" id="earHint"></span>
     </button>
-    <div class="answer-actions"><button class="secondary" id="replayReference" type="button" hidden>♫ Replay reference</button></div>
-    <div class="ear-piano-wrap">
-      <div class="ear-piano-head"><strong>Piano</strong><span>C3–B5</span></div>
-      <div class="ear-keyboard" id="earKeyboard" role="group" aria-label="Interactive piano keyboard, C3 to B5"></div>
-      <div class="ear-legend"><span><i></i>Reference</span><span><i class="target-dot"></i>Answer</span></div>
-      <p class="muted" style="text-align:center;margin:10px 0 0;font-size:.74rem" id="pianoSampleStatus" hidden></p>
-    </div>
-    <p class="muted" id="earInstructions" hidden></p>
+    <div class="ear-response" id="earFeedback" aria-live="polite"></div>
+    <div class="piano-scroll" aria-label="Playable piano keyboard"><div class="piano" id="earPiano" aria-label="Playable piano keyboard"></div></div>
+    
+    <div class="ear-help" id="earSoundStatus" role="status"></div>
   </section>
 
-  <div class="sectionhead"><h2>Practice plan</h2><span class="muted" id="completed">0 of 10 completed</span></div>
-  <section id="schedule" aria-label="Exercise list"></section>
 
-  <section class="panel" style="margin-top:18px">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <div><h2>Customize your plan</h2></div>
-      <button class="secondary" id="toggleEditor" type="button">Edit exercises</button>
-    </div>
-    <div id="editor" hidden style="margin-top:16px">
-      <div id="editRows" style="display:grid;gap:9px"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-        <button class="secondary" id="addExercise" type="button">+ Add exercise</button>
-        <button class="secondary" id="restorePlan" type="button">Restore original plan</button>
-      </div>
-      <div class="muted" style="margin-top:10px">Plan changes apply to the timer. If you edit during a session, restart the plan afterwards.</div>
-    </div>
+  <section class="panel" id="progressionGenerator" aria-label="Key generator for chord progressions" hidden>
+    <h2>Key Generator</h2>
+    <button id="generateKey" class="key-empty" type="button" aria-label="Generate a key"><span class="starter-stack"><svg class="starter-svg" viewBox="0 0 48 48" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 31.6V10.5L39 6v22"/><path d="M19 15l20-4.5"/><ellipse cx="12.4" cy="34.1" rx="6.8" ry="4.3" transform="rotate(-18 12.4 34.1)"/><ellipse cx="32.4" cy="30.9" rx="6.8" ry="4.3" transform="rotate(-18 32.4 30.9)"/></svg><span class="starter-label">TAP TO GENERATE</span></span></button>
   </section>
 
-  <footer>Keep this page open during your session.</footer>
+  <div class="sectionhead practice-only"><h2>Practice plan</h2><span class="muted" id="completed">0 of 10 completed</span></div>
+  <p class="muted practice-only" id="planHint"></p>
+  <div class="practice-only" style="display:flex;gap:8px;justify-content:flex-end;margin:8px 0 12px">
+    <button class="secondary" id="toggleEditor" type="button">Edit</button>
+  </div>
+  <section class="practice-only" id="schedule" aria-label="Exercise list"></section>
+  <div class="practice-only" id="editActions" hidden style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+    <button class="secondary" id="addExercise" type="button">+ Add exercise</button>
+    <button class="secondary" id="restorePlan" type="button">Reset plan</button>
+  </div>
+
+  
+
+
+
 </main>
 <script>
 const defaultPlan = [
-  {name:"Ear training", minutes:12},
+  {name:"Ear training", minutes:12, tool:"ear"},
   {name:"Hanon warm-up", minutes:3},
   {name:"Scales", minutes:45},
   {name:"Break", minutes:10},
   {name:"Arpeggios", minutes:15},
-  {name:"Chord Dice", minutes:12},
+  {name:"Chord Dice", minutes:12, tool:"dice"},
   {name:"Break", minutes:10},
-  {name:"Create chord progressions", minutes:25},
+  {name:"Create chord progressions", minutes:25, tool:"progressions"},
   {name:"Improvise over chords", minutes:25},
   {name:"Repertoire", minutes:23}
 ];
 const $ = id => document.getElementById(id);
 const timerKey="piano-study-timer-v2", planKey="piano-study-custom-plan-v1";
-const originalExerciseNames={"Chord flashcards": "Chord Dice", "Treino auditivo": "Ear training", "Aquecimento Hanon": "Hanon warm-up", "Escalas": "Scales", "Pausa": "Break", "Arpejos": "Arpeggios", "Cartões de acordes": "Chord Dice", "Criar progressões harmónicas": "Create chord progressions", "Improvisar sobre acordes": "Improvise over chords", "Repertório": "Repertoire", "Novo exercício": "New exercise", "Exercício": "Exercise"};
+function inferTool(name){
+  const n=String(name||"").trim().toLowerCase();
+  if(["ear training","treino auditivo"].includes(n))return "ear";
+  if(["chord dice","chord flashcard","chord flashcards","cartões de acordes"].includes(n))return "dice";
+  if(["create chord progressions","create a progression","criar progressões harmónicas"].includes(n))return "progressions";
+  return null;
+}
+const originalExerciseNames={"Treino auditivo": "Ear training", "Aquecimento Hanon": "Hanon warm-up", "Escalas": "Scales", "Pausa": "Break", "Arpejos": "Arpeggios", "Cartões de acordes": "Chord Dice", "Criar progressões harmónicas": "Create chord progressions", "Improvisar sobre acordes": "Improvise over chords", "Repertório": "Repertoire", "Novo exercício": "New exercise", "Exercício": "Exercise"};
+let editorMode=false;
 let plan=loadPlan(), index=0, remaining=plan[0].minutes*60, running=false, waiting=false, interval=null, lastTick=0, audioCtx=null, alarmSource=null, completedExercises=new Set();
-const embeddedOpen={ear:true,dice:false};
-const embeddedPanels={ear:$("earTraining"),dice:$("chordDice")};
 function loadPlan(){
   try{
     const saved=JSON.parse(localStorage.getItem(planKey)||"null");
     if(Array.isArray(saved)&&saved.length&&saved.every(x=>typeof x.name==="string"&&Number.isFinite(x.minutes)&&x.minutes>0))
-      return saved.map(x=>({name:originalExerciseNames[x.name]||x.name,minutes:Math.min(240,Math.max(1,Math.round(x.minutes)))}));
+      return saved.map(x=>({name:originalExerciseNames[x.name]||x.name,minutes:Math.min(240,Math.max(1,Math.round(x.minutes))),tool:["ear","dice","progressions"].includes(x.tool)?x.tool:inferTool(x.name)}));
   }catch(e){}
   return defaultPlan.map(x=>({...x}));
 }
@@ -241,22 +419,28 @@ function render(){
   const p=plan[index], duration=p.minutes*60;
   $("stepLabel").textContent=`Step ${index+1} of ${plan.length}`;
   $("exercise").textContent=p.name;
-  $("openChordDice").hidden=!/chord.*(flashcards|cards|dice)|(?:flashcards|cards|dice).*chord/i.test(p.name);
-  $("openEarTraining").hidden=!/ear training|treino auditivo/i.test(p.name);
   $("clock").textContent=fmt(remaining);
   $("details").textContent=`${p.minutes} minutes`;
   $("bar").style.width=`${100*(duration-remaining)/duration}%`;
-  $("sessionState").textContent=waiting?"Waiting for confirmation":running?"In progress":"Paused";
+  $("sessionState").textContent=waiting?"Finished":running?"In progress":"Paused";
   $("start").disabled=running||waiting;
   $("start").textContent=(remaining===duration)?"Start":"Resume";
   $("pause").disabled=!running;
   $("next").hidden=!waiting;
-  $("status").hidden=!waiting;
-  $("status").textContent=waiting?"Time is up — confirm to continue.":"";
+  $("finishEarly").disabled=waiting||completedExercises.has(index);
+  $("status").textContent=waiting?"Finished":running?"":"";
   $("timerPanel").classList.toggle("alert",waiting);
   $("completed").textContent=`${completedExercises.size} of ${plan.length} completed`;
-  // Preserve the existing widgets and their interactive state while rebuilding the plan.
+  // Tool identity is independent of the editable exercise label and its position.
+  const activeTool=p.tool||inferTool(p.name);
+  const showDice=activeTool==="dice";
+  const showEar=activeTool==="ear";
+  const showProgressions=activeTool==="progressions";
+  $("chordDice").hidden=!showDice;
+  $("earTraining").hidden=!showEar;
+  $("progressionGenerator").hidden=!showProgressions;
   $("schedule").replaceChildren();
+  if(editorMode){renderEditor();save();return;}
   plan.forEach((p,i)=>{
     const row=document.createElement("button");
     row.type="button";
@@ -267,23 +451,7 @@ function render(){
     const dot=document.createElement("span");dot.className="dot";dot.textContent=i===index?"●":completedExercises.has(i)?"✓":"○";
     const name=document.createElement("span");name.className="name";name.textContent=p.name;
     const dur=document.createElement("span");dur.className="duration";dur.textContent=`${p.minutes} min`;
-    left.append(dot,name);row.append(left,dur);
-    const group=document.createElement("div");group.className="plan-group";
-    group.append(row);
-    const type=/chord.*(flashcards|cards|dice)|(?:flashcards|cards|dice).*chord/i.test(p.name)?"dice":/ear training|treino auditivo/i.test(p.name)?"ear":null;
-    // Widgets appear immediately beneath their own exercise, not in separate sections.
-    if(type){
-      const toggle=document.createElement("button");toggle.type="button";toggle.className="embedded-toggle";
-      const panel=embeddedPanels[type];
-      const isOpen=embeddedOpen[type] && !document.querySelector(`#schedule .embedded-panel[data-exercise-type="${type}"]`);
-      toggle.textContent=isOpen?"⌃  Hide":"⌄  Open";
-      toggle.setAttribute("aria-expanded",String(isOpen));
-      toggle.addEventListener("click",()=>{embeddedOpen[type]=!embeddedOpen[type];render();if(embeddedOpen[type]&&type==="ear")preloadPianoSamples()});
-      group.append(toggle);
-      if(isOpen){panel.hidden=false;panel.classList.add("embedded-panel");panel.dataset.exerciseType=type;group.append(panel)}
-      else if(!document.querySelector(`#schedule .embedded-panel[data-exercise-type="${type}"]`)){panel.hidden=true}
-    }
-    $("schedule").append(group);
+    left.append(dot,name);row.append(left,dur);$("schedule").append(row);
   });
   save();
 }
@@ -313,7 +481,7 @@ function startAlarm(){
     alarmSource.loop=true;
     alarmSource.connect(audioCtx.destination);
     alarmSource.start();
-  }catch(e){stopAlarm();$("status").textContent="Time is up. Your browser blocked the sound. Confirm to continue."}
+  }catch(e){stopAlarm();$("status").textContent="Finished"}
 }
 function stopAlarm(){
   if(!alarmSource)return;
@@ -333,8 +501,7 @@ $("start").addEventListener("click",()=>{
   },250);render();
 });
 $("pause").addEventListener("click",()=>{stop();render()});
-$("next").addEventListener("click",()=>{
-  if(!waiting)return;
+function completeExercise(){
   stopAlarm();
   completedExercises.add(index);
   if(index===plan.length-1&&completedExercises.size<plan.length){
@@ -344,10 +511,15 @@ $("next").addEventListener("click",()=>{
   }
   if(index===plan.length-1){
     stop();completedExercises.clear();waiting=false;index=0;remaining=plan[0].minutes*60;render();
-    $("status").textContent="Plan completed! Start a new session whenever you like.";
+    $("status").textContent="Completed";
     return;
   }
   index++;remaining=plan[index].minutes*60;waiting=false;render();
+}
+$("next").addEventListener("click",()=>{if(waiting)completeExercise()});
+$("finishEarly").addEventListener("click",()=>{
+  if(waiting||completedExercises.has(index))return;
+  stop();stopAlarm();completeExercise();
 });
 $("reset").addEventListener("click",()=>{
   stopAlarm();stop();completedExercises.clear();index=0;remaining=plan[0].minutes*60;waiting=false;render();
@@ -373,9 +545,9 @@ const chordDeckSource = [
   ["F","Fmaj7","F A C E","Major seventh","1 · 3 · 5 · 7"],
   ["F","Fm7","F Ab C Eb","Minor seventh","1 · ♭3 · 5 · ♭7"],
   ["F","F7","F A C Eb","Dominant seventh","1 · 3 · 5 · ♭7"],
-  ["F#","F#maj7","F# A# C# E#","Major seventh","1 · 3 · 5 · 7"],
-  ["F#","F#m7","F# A C# E","Minor seventh","1 · ♭3 · 5 · ♭7"],
-  ["F#","F#7","F# A# C# E","Dominant seventh","1 · 3 · 5 · ♭7"],
+  ["Gb","Gbmaj7","Gb Bb Db F","Major seventh","1 · 3 · 5 · 7"],
+  ["Gb","Gbm7","Gb A Db E","Minor seventh","1 · ♭3 · 5 · ♭7"],
+  ["Gb","Gb7","Gb Bb Db Fb","Dominant seventh","1 · 3 · 5 · ♭7"],
   ["G","Gmaj7","G B D F#","Major seventh","1 · 3 · 5 · 7"],
   ["G","Gm7","G Bb D F","Minor seventh","1 · ♭3 · 5 · ♭7"],
   ["G","G7","G B D F","Dominant seventh","1 · 3 · 5 · ♭7"],
@@ -392,7 +564,9 @@ const chordDeckSource = [
   ["B","Bm7","B D F# A","Minor seventh","1 · ♭3 · 5 · ♭7"],
   ["B","B7","B D# F# A","Dominant seventh","1 · 3 · 5 · ♭7"]
 ].map(([root,symbol,notes,quality,formula])=>({root,symbol,notes,quality,formula}));
-let chordDeck=[], chordDrawn=[], currentChord=null;
+let chordDeck=[], chordDrawn=[], currentChord=null, diceRolling=false, diceRollTimer=null, diceFaceTimer=null;
+const diceFaces=["⚀","⚁","⚂","⚃","⚄","⚅"];
+const CHORD_DICE_START_ICON='<span class="die-animation die-idle" aria-hidden="true">⚄</span>';
 function shuffleChords(items){
   const a=[...items];
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
@@ -412,234 +586,138 @@ function updateChordDice(){
   });
 }
 function resetChordDice(){
+  clearTimeout(diceRollTimer);clearInterval(diceFaceTimer);diceRolling=false;
+  $("rollingDie").classList.remove("rolling");$("rollingDie").style.display="none";
+  $("diceChord").hidden=false;
   chordDeck=shuffleChords(chordDeckSource);
   chordDrawn=[];currentChord=null;
-  $("diceChord").textContent="Ready?";
-  $("diceEyebrow").textContent="YOUR CHORD";
-  $("dicePrompt").textContent="Draw a chord, identify it and play it on the piano.";
+  $("diceChord").innerHTML=CHORD_DICE_START_ICON;
+  $("diceEyebrow").textContent="TAP TO ROLL";
+  $("dicePrompt").textContent="";
   $("diceAnswer").hidden=true;
   $("diceAnswer").textContent="";
-  $("toggleDiceAnswer").hidden=true;
-  $("toggleDiceAnswer").textContent="Reveal answer";
-  $("toggleDiceAnswer").setAttribute("aria-expanded","false");
+  $("revealChord").disabled=true;
   $("drawChord").disabled=false;
-  $("rollLabel").textContent="Tap here to roll the dice";
-  $("diceIcon").hidden=false;
-  $("drawChord").setAttribute("aria-label","Roll the dice to draw a chord");
+  $("drawChord").setAttribute("aria-label","Roll the dice");
   updateChordDice();
 }
-function drawChord(){
-  if(!chordDeck.length)return;
+function finishChordRoll(){
+  clearInterval(diceFaceTimer);diceRolling=false;
+  $("rollingDie").classList.remove("rolling");$("rollingDie").style.display="none";
   currentChord=chordDeck.pop();
   chordDrawn.push(currentChord);
+  $("diceChord").hidden=false;
   $("diceChord").textContent=currentChord.symbol;
-  $("diceIcon").hidden=true;
-  $("drawChord").setAttribute("aria-label",`Current chord ${currentChord.symbol}. Click to roll again`);
-  $("diceEyebrow").textContent="IDENTIFY AND PLAY THIS CHORD";
-  $("dicePrompt").textContent="Work out the chord quality and play all four notes before revealing the answer.";
-  $("diceAnswer").hidden=true;
-  $("toggleDiceAnswer").hidden=false;
-  $("toggleDiceAnswer").textContent="Reveal answer";
-  $("toggleDiceAnswer").setAttribute("aria-expanded","false");
-  $("diceAnswer").innerHTML=`<strong>${currentChord.quality}</strong> · Notes: <strong>${currentChord.notes}</strong> · Formula: ${currentChord.formula}`;
-  $("drawChord").disabled=false;
-  $("rollLabel").textContent=chordDeck.length===0?"Tap to start a new round":"Tap here for another chord";
+  $("diceEyebrow").textContent="TAP TO ROLL AGAIN";
+  $("dicePrompt").textContent="";
+  $("revealChord").disabled=false;
+  $("drawChord").disabled=chordDeck.length===0;
+  $("drawChord").setAttribute("aria-label",chordDeck.length===0?"Round complete":"Roll again");
   updateChordDice();
   if(chordDeck.length===0){
-    $("dicePrompt").textContent="That was the last chord. Roll again to start a new round.";
+    $("diceEyebrow").textContent="ROUND COMPLETE";
+    $("dicePrompt").textContent="";
   }
 }
-$("openChordDice").addEventListener("click",()=>{embeddedOpen.dice=true;render();$("chordDice").scrollIntoView({behavior:"smooth",block:"start"});});
-$("closeChordDice").addEventListener("click",()=>{embeddedOpen.dice=false;render()});
-$("drawChord").addEventListener("click",()=>{
-  const button=$("drawChord"), icon=$("diceIcon");
-  if(!chordDeck.length)resetChordDice();
-  button.disabled=true;
-  icon.hidden=false;
-  $("diceChord").textContent="";
+function drawChord(){
+  if(!chordDeck.length||diceRolling)return;
+  diceRolling=true;
+  $("drawChord").disabled=true;
+  $("drawChord").setAttribute("aria-label","Rolling the dice");
+  $("revealChord").disabled=true;
   $("diceAnswer").hidden=true;
-  $("toggleDiceAnswer").hidden=true;
-  $("toggleDiceAnswer").setAttribute("aria-expanded","false");
-  $("diceEyebrow").textContent="ROLLING THE DICE";
-  void icon.offsetWidth;
-  icon.classList.add("rolling");
-  $("rollLabel").textContent="Rolling…";
-  const faces=["⚀","⚁","⚂","⚃","⚄","⚅"];
-  const interval=setInterval(()=>{icon.textContent=faces[Math.floor(Math.random()*6)];},85);
-  setTimeout(()=>{clearInterval(interval);icon.classList.remove("rolling");icon.textContent=faces[Math.floor(Math.random()*6)];drawChord();},700);
-});
-$("toggleDiceAnswer").addEventListener("click",()=>{
+  $("diceAnswer").textContent="";
+  $("diceChord").hidden=true;
+  $("diceEyebrow").textContent="ROLLING…";
+  $("dicePrompt").textContent="";
+  const die=$("rollingDie");
+  die.textContent=diceFaces[Math.floor(Math.random()*6)];
+  die.style.display="block";
+  die.classList.remove("rolling");void die.offsetWidth;
+  die.classList.add("rolling");
+  diceFaceTimer=setInterval(()=>{die.textContent=diceFaces[Math.floor(Math.random()*6)]},95);
+  diceRollTimer=setTimeout(finishChordRoll,750);
+}
+function revealChord(){
   if(!currentChord)return;
-  const answer=$("diceAnswer");
-  answer.hidden=!answer.hidden;
-  $("toggleDiceAnswer").textContent=answer.hidden?"Reveal answer":"Hide answer";
-  $("toggleDiceAnswer").setAttribute("aria-expanded",String(!answer.hidden));
-});
+  $("diceAnswer").innerHTML=`<strong>${currentChord.quality}</strong><br>Notes: <strong>${currentChord.notes}</strong><br>Formula: ${currentChord.formula}`;
+  $("diceAnswer").hidden=false;
+}
+
+$("drawChord").addEventListener("click",drawChord);
+$("revealChord").addEventListener("click",revealChord);
+$("reshuffleDice").addEventListener("click",resetChordDice);
 resetChordDice();
 
-// Ear training: reference tone first, target tone only after revealing.
-const earNoteNames=["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
-const earIntervals=[
-  [1,"Minor 2nd"],[2,"Major 2nd"],[3,"Minor 3rd"],[4,"Major 3rd"],
-  [5,"Perfect 4th"],[6,"Tritone"],[7,"Perfect 5th"],
-  [8,"Minor 6th"],[9,"Major 6th"],[10,"Minor 7th"],[11,"Major 7th"],[12,"Octave"]
-];
-let earPhase="ready", earReference=null, earTarget=null, earChallenge=null, earCompleted=0;
-function animateEarSymbol(){const symbol=$("earSymbol");symbol.classList.remove("pulse");void symbol.offsetWidth;symbol.classList.add("pulse") }
-function earLabel(midi){return earNoteNames[midi%12]+(Math.floor(midi/12)-1)}
-// Real acoustic Yamaha C5 recordings from the Salamander Grand Piano library.
-// One recording every 3–4 semitones; playback-rate transposition fills the remaining keys.
-// Source: https://tonejs.github.io/audio/salamander/ (CC BY 3.0, Alexander Holm).
-const pianoSampleBase="https://tonejs.github.io/audio/salamander/";
-const pianoSampleRoots=[
-  [48,"C3"],[51,"Ds3"],[54,"Fs3"],[57,"A3"],
-  [60,"C4"],[63,"Ds4"],[66,"Fs4"],[69,"A4"],
-  [72,"C5"],[75,"Ds5"],[78,"Fs5"],[81,"A5"]
-];
-const pianoBuffers=new Map(), pianoLoading=new Map();
-function ensureAudioContext(){
-  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state==="suspended")audioCtx.resume();
-  return audioCtx;
+// Preserve the selected exercise, completed steps and time when reordering.
+function moveExercise(from,to){
+  if(to<0||to>=plan.length||from===to)return;
+  const active=plan[index];
+  const completedItems=new Set([...completedExercises].map(i=>plan[i]).filter(Boolean));
+  const [item]=plan.splice(from,1);
+  plan.splice(to,0,item);
+  index=plan.indexOf(active);
+  completedExercises=new Set(plan.flatMap((p,i)=>completedItems.has(p)?[i]:[]));
+  saveCustomPlan();
 }
-function getPianoRoot(midi){
-  return pianoSampleRoots.reduce((closest,entry)=>Math.abs(entry[0]-midi)<Math.abs(closest[0]-midi)?entry:closest);
-}
-async function loadPianoSample(root){
-  if(pianoBuffers.has(root[0]))return pianoBuffers.get(root[0]);
-  if(!pianoLoading.has(root[0])){
-    const task=(async()=>{
-      const res=await fetch(pianoSampleBase+root[1]+".mp3");
-      if(!res.ok)throw new Error("Piano sample unavailable: "+root[1]);
-      const bytes=await res.arrayBuffer();
-      const buffer=await ensureAudioContext().decodeAudioData(bytes);
-      pianoBuffers.set(root[0],buffer);
-      return buffer;
-    })();
-    pianoLoading.set(root[0],task);
-    task.finally(()=>pianoLoading.delete(root[0])).catch(()=>{});
-  }
-  return pianoLoading.get(root[0]);
-}
-async function playEarNote(midi){
-  try{
-    const ctx=ensureAudioContext(),root=getPianoRoot(midi);
-    const buffer=await loadPianoSample(root);
-    const source=ctx.createBufferSource(),gain=ctx.createGain();
-    source.buffer=buffer;
-    source.playbackRate.value=Math.pow(2,(midi-root[0])/12);
-    const start=ctx.currentTime+.005;
-    const maxDuration=Math.min(3.2,buffer.duration/source.playbackRate.value);
-    gain.gain.setValueAtTime(.0001,start);
-    gain.gain.linearRampToValueAtTime(.72,start+.008);
-    gain.gain.setValueAtTime(.72,start+Math.max(.01,maxDuration-.20));
-    gain.gain.exponentialRampToValueAtTime(.0001,start+maxDuration);
-    source.connect(gain);gain.connect(ctx.destination);
-    source.start(start);source.stop(start+maxDuration+.01);
-  }catch(e){
-    console.warn("Acoustic piano sample could not load",e);
-    $("pianoSampleStatus").textContent="Piano sound unavailable. Connect to the internet and try a key again.";
-  }
-}
-function preloadPianoSamples(){
-  // Start loading in the background when the user opens Ear Training.
-  // The first key also works while other samples are still loading.
-  try{ensureAudioContext()}catch(e){return}
-  $("pianoSampleStatus").textContent="Loading acoustic piano samples…";
-  Promise.allSettled(pianoSampleRoots.map(loadPianoSample)).then(results=>{
-    $("pianoSampleStatus").textContent=results.some(r=>r.status==="rejected")
-      ?"Some piano sounds could not load. Internet connection required."
-      :"Acoustic piano · Yamaha C5 samples";
-  });
-}
-function buildEarKeyboard(){
-  const keyboard=$("earKeyboard");keyboard.replaceChildren();
-  const whiteNotes=[];
-  for(let midi=48;midi<=83;midi++){
-    const sharp=[1,3,6,8,10].includes(midi%12);
-    if(!sharp){const key=document.createElement("button");key.type="button";key.className="ear-white";key.dataset.note=midi;key.setAttribute("aria-label",`Play ${earLabel(midi)}`);key.title=earLabel(midi);keyboard.append(key);whiteNotes.push(midi)}
-  }
-  // Full three-octave keyboard, C3–B5. Black-key locations are percentages of white-key positions.
-  for(let midi=48;midi<=83;midi++){
-    if(![1,3,6,8,10].includes(midi%12))continue;
-    const leftWhites=whiteNotes.filter(n=>n<midi).length;
-    const key=document.createElement("button");key.type="button";key.className="ear-black";key.dataset.note=midi;key.setAttribute("aria-label",`Play ${earLabel(midi)}`);key.title=earLabel(midi);
-    key.style.left=`${100*leftWhites/whiteNotes.length}%`;
-    keyboard.append(key);
-  }
-  keyboard.setAttribute("aria-label","Interactive piano keyboard from C3 to B5");
-  // Each key is a real button, supporting mouse, touch and keyboard activation.
-  keyboard.addEventListener("click",event=>{
-    const key=event.target.closest("button[data-note]");
-    if(!key||!keyboard.contains(key))return;
-    playEarNote(Number(key.dataset.note));
-    key.classList.add("pressed");
-    clearTimeout(key.releaseTimer);
-    key.releaseTimer=setTimeout(()=>key.classList.remove("pressed"),180);
-  });
-}
-function highlightEarKeys(){
-  $("earKeyboard").querySelectorAll("[data-note]").forEach(key=>{
-    const midi=Number(key.dataset.note),ref=earReference===midi, answer=earPhase==="revealed"&&earTarget===midi;
-    key.classList.toggle("reference",ref&&!answer);
-    key.classList.toggle("target",answer&&!ref);
-    key.classList.toggle("both",ref&&answer);
-  });
-}
-function newEarChallenge(){
-  const [semitones,label]=earIntervals[Math.floor(Math.random()*earIntervals.length)];
-  const direction=Math.random()<.5?1:-1;
-  // Keeping targets within C3–B5 makes them visible on the keyboard.
-  const low=direction===1?48:48+semitones, high=direction===1?83-semitones:83;
-  earReference=low+Math.floor(Math.random()*(high-low+1));
-  earTarget=earReference+direction*semitones;
-  earChallenge={label,direction};earPhase="sing";
-  $("earSymbol").textContent="♫";animateEarSymbol();
-  $("earEyebrow").textContent="LISTEN AND SING";
-  $("earInterval").textContent=label;
-  $("earDirection").textContent=direction>0?"↑ Ascending":"↓ Descending";
-  $("earNote").textContent=`Reference: ${earLabel(earReference)}`;
-  $("earHint").textContent="Tap to reveal";
-  $("replayReference").hidden=false;
-  $("earInstructions").textContent="Sing the target without hearing it first. Tap the card to check your answer.";
-  highlightEarKeys();playEarNote(earReference);
-}
-function revealEarChallenge(){
-  earPhase="revealed";earCompleted++;
-  $("earCount").textContent=`${earCompleted} completed`;
-  $("earSymbol").textContent="♪";animateEarSymbol();
-  $("earEyebrow").textContent="ANSWER";
-  $("earNote").textContent=`${earLabel(earReference)} → ${earLabel(earTarget)}`;
-  $("earHint").textContent="Tap for a new interval";
-  $("earInstructions").textContent="The target note is highlighted in yellow and played aloud. Compare it with what you sang.";
-  highlightEarKeys();playEarNote(earTarget);
-}
-$("earCard").addEventListener("click",()=>{
-  if(earPhase==="sing")revealEarChallenge();else newEarChallenge();
-});
-$("replayReference").addEventListener("click",()=>{if(earReference!==null)playEarNote(earReference)});
-$("openEarTraining").addEventListener("click",()=>{embeddedOpen.ear=true;render();preloadPianoSamples();$("earTraining").scrollIntoView({behavior:"smooth",block:"start"});});
-$("closeEarTraining").addEventListener("click",()=>{embeddedOpen.ear=false;render()});
-buildEarKeyboard();
-
 function renderEditor(){
-  const wrap=$("editRows");wrap.replaceChildren();
+  const wrap=$("schedule");wrap.replaceChildren();
   plan.forEach((p,i)=>{
-    const row=document.createElement("div");
-    row.style.cssText="display:grid;grid-template-columns:minmax(0,1fr) 88px 40px;gap:7px;align-items:center";
-    const name=document.createElement("input");name.type="text";name.value=p.name;name.setAttribute("aria-label","Exercise name");
-    name.style.cssText="min-width:0;width:100%;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text)";
-    name.addEventListener("change",()=>{p.name=name.value.trim()||"Exercise";saveCustomPlan()});
-    const mins=document.createElement("input");mins.type="number";mins.min="1";mins.max="240";mins.step="1";mins.value=p.minutes;mins.setAttribute("aria-label","Duration in minutes");
-    mins.style.cssText="width:100%;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--text)";
-    mins.addEventListener("change",()=>{p.minutes=Math.max(1,Math.min(240,Math.round(Number(mins.value)||1)));mins.value=p.minutes;saveCustomPlan()});
-    const del=document.createElement("button");del.type="button";del.textContent="×";del.title="Delete exercise";del.className="secondary";del.style.padding="9px";
+    const row=document.createElement("div");row.className="edit-row";
+    const name=document.createElement("input");name.type="text";name.value=p.name;name.setAttribute("aria-label","Exercise "+(i+1)+" name");
+    // Assign a tool identity before changing the title, including for older saved plans.
+    name.addEventListener("change",()=>{p.tool=p.tool||inferTool(p.name);p.name=name.value.trim()||"Exercise";saveCustomPlan()});
+    const mins=document.createElement("input");mins.type="number";mins.min="1";mins.max="240";mins.step="1";mins.value=p.minutes;mins.setAttribute("aria-label","Duration for "+p.name+" in minutes");
+    mins.addEventListener("change",()=>{
+      const old=p.minutes*60;
+      p.minutes=Math.max(1,Math.min(240,Math.round(Number(mins.value)||1)));
+      mins.value=p.minutes;
+      if(index===i){
+        // Keep elapsed time; editing this duration should not reset the timer.
+        remaining=Math.max(0,Math.min(p.minutes*60,remaining+(p.minutes*60-old)));
+        if(remaining===0&&running){stop();waiting=true;startAlarm();}
+      }
+      saveCustomPlan();
+    });
+    const handle=document.createElement("button");handle.type="button";handle.className="drag-handle";handle.textContent="⠿";handle.title="Drag to reorder "+p.name;handle.setAttribute("aria-label",handle.title);
+    handle.addEventListener("pointerdown",event=>{
+      if(event.button!==0||plan.length<2)return;
+      event.preventDefault();
+      const origin=i;
+      let current=i;
+      const pointerId=event.pointerId;
+      handle.setPointerCapture(pointerId);
+      row.classList.add("dragging");
+      const onMove=e=>{
+        if(e.pointerId!==pointerId)return;
+        const others=[...wrap.children].filter(el=>el!==row);
+        const target=others.findIndex(el=>e.clientY<el.getBoundingClientRect().top+el.getBoundingClientRect().height/2);
+        const destination=target<0?others.length:target;
+        const neighbor=others[destination];
+        if(neighbor)wrap.insertBefore(row,neighbor);else wrap.appendChild(row);
+        current=[...wrap.children].indexOf(row);
+      };
+      const finish=e=>{
+        if(e.pointerId!==pointerId)return;
+        handle.removeEventListener("pointermove",onMove);
+        handle.removeEventListener("pointerup",finish);
+        handle.removeEventListener("pointercancel",cancel);
+        row.classList.remove("dragging");
+        if(handle.hasPointerCapture(pointerId))handle.releasePointerCapture(pointerId);
+        if(current!==origin)moveExercise(origin,current);else renderEditor();
+      };
+      const cancel=e=>{if(e.pointerId!==pointerId)return;handle.removeEventListener("pointermove",onMove);handle.removeEventListener("pointerup",finish);handle.removeEventListener("pointercancel",cancel);renderEditor()};
+      handle.addEventListener("pointermove",onMove);
+      handle.addEventListener("pointerup",finish);
+      handle.addEventListener("pointercancel",cancel);
+    });
+    const del=document.createElement("button");del.type="button";del.textContent="×";del.title="Delete "+p.name;del.setAttribute("aria-label",del.title);del.className="secondary move-btn";
     del.addEventListener("click",()=>{if(plan.length<=1){alert("The plan must contain at least one exercise.");return}plan.splice(i,1);
       completedExercises=new Set([...completedExercises].filter(n=>n!==i).map(n=>n>i?n-1:n));
       if(i===index){stopAlarm();stop();index=Math.min(index,plan.length-1);remaining=plan[index].minutes*60;waiting=false}
       else if(i<index)index--;
       saveCustomPlan();renderEditor()});
-    row.append(name,mins,del);wrap.append(row);
+    row.append(handle,name,mins,del);wrap.append(row);
   });
 }
 function saveCustomPlan(){
@@ -647,9 +725,11 @@ function saveCustomPlan(){
   render();
 }
 $("toggleEditor").addEventListener("click",()=>{
-  const opening=$("editor").hidden;$("editor").hidden=!opening;
-  $("toggleEditor").textContent=opening?"Close editor":"Edit exercises";
-  if(opening)renderEditor();
+  editorMode=!editorMode;
+  $("toggleEditor").textContent=editorMode?"Done":"Edit";
+  $("editActions").hidden=!editorMode;
+  $("planHint").textContent=editorMode?"Drag to reorder":"";
+  render();
 });
 $("addExercise").addEventListener("click",()=>{
   plan.push({name:"New exercise",minutes:10});
@@ -668,10 +748,178 @@ try{
     index=saved.index;remaining=Math.max(0,Math.min(plan[index].minutes*60,Number(saved.remaining)||0));waiting=!!saved.waiting;
   }
 }catch(e){}
-if("serviceWorker" in navigator && location.protocol!=="file:"){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+
+// Ear training: starting pitch + a named interval, with answer only on demand.
+const NOTE_NAMES=["C","C♯","D","E♭","E","F","F♯","G","A♭","A","B♭","B"];
+const INTERVALS=[
+  [0,"Perfect unison","easy"],[1,"Minor 2nd","easy"],[2,"Major 2nd","easy"],
+  [3,"Minor 3rd","easy"],[4,"Major 3rd","easy"],[5,"Perfect 4th","easy"],
+  [6,"Tritone","advanced"],[7,"Perfect 5th","easy"],[8,"Minor 6th","advanced"],
+  [9,"Major 6th","advanced"],[10,"Minor 7th","advanced"],[11,"Major 7th","advanced"],[12,"Perfect octave","easy"]
+];
+const noteName=m=>NOTE_NAMES[m%12]+(Math.floor(m/12)-1);
+let earQuestion=null,earTotal=0,lastEarAnswer=null,earPhase="idle";
+let pianoAudio=null,activePianoNotes=new Map(),pianoSampleBuffers=new Map(),sampleLoading=new Set();
+const pianoSampleRoots=[48,51,54,57,60,63,66,69,72,75,78,81,84];
+const sampleFileNames={48:"C3",51:"Ds3",54:"Fs3",57:"A3",60:"C4",63:"Ds4",66:"Fs4",69:"A4",72:"C5",75:"Ds5",78:"Fs5",81:"A5",84:"C6"};
+function getPianoAudio(){
+  if(!pianoAudio){pianoAudio=new (window.AudioContext||window.webkitAudioContext)()}
+  if(pianoAudio.state==="suspended")pianoAudio.resume();
+  return pianoAudio;
 }
+async function getSample(root){
+  if(pianoSampleBuffers.has(root)||sampleLoading.has(root))return;
+  sampleLoading.add(root);
+  try{
+    const response=await fetch("https://tonejs.github.io/audio/salamander/"+sampleFileNames[root]+".mp3");
+    if(!response.ok)throw new Error("Unavailable");
+    const buffer=await response.arrayBuffer();
+    pianoSampleBuffers.set(root,await getPianoAudio().decodeAudioData(buffer));
+    $("earSoundStatus").textContent="";
+  }catch(e){$("earSoundStatus").textContent=""}
+  finally{sampleLoading.delete(root)}
+}
+function nearestSample(m){return pianoSampleRoots.reduce((a,b)=>Math.abs(m-b)<Math.abs(m-a)?b:a)}
+function playPiano(m,ms=1250){
+  let ctx;try{ctx=getPianoAudio()}catch(e){$("earSoundStatus").textContent="Audio is not supported in this browser.";return}
+  const now=ctx.currentTime, gain=ctx.createGain();gain.connect(ctx.destination);
+  const sampleRoot=nearestSample(m),buffer=pianoSampleBuffers.get(sampleRoot);
+  if(buffer){
+    const src=ctx.createBufferSource();src.buffer=buffer;src.playbackRate.value=2**((m-sampleRoot)/12);
+    gain.gain.setValueAtTime(0,now);gain.gain.linearRampToValueAtTime(.5,now+.008);
+    gain.gain.setTargetAtTime(.0001,now+Math.min(ms/1000,2.1),.13);
+    src.connect(gain);src.start(now);src.stop(now+Math.min(4,ms/1000+.6));
+  }else{
+    const freq=440*2**((m-69)/12);
+    const partials=[{r:1,v:.31},{r:2,v:.12},{r:3,v:.058},{r:4,v:.024},{r:5,v:.012}];
+    const duration=Math.min(2.5,ms/1000+.4);
+    partials.forEach((p,i)=>{
+      const osc=ctx.createOscillator(),pg=ctx.createGain();
+      osc.type="sine";osc.frequency.value=freq*p.r*(1+.00022*i);
+      pg.gain.setValueAtTime(0,now);pg.gain.linearRampToValueAtTime(p.v,now+.006+i*.002);
+      pg.gain.exponentialRampToValueAtTime(.0001,now+duration*(i===0?1:.7));
+      osc.connect(pg);pg.connect(gain);osc.start(now);osc.stop(now+duration+.03);
+    });
+    gain.gain.value=.8;
+    getSample(sampleRoot); // upgrade to recorded piano sample as soon as available
+  }
+  const key=document.querySelector('[data-midi="'+m+'"]');
+  if(key){key.classList.add("played");setTimeout(()=>key.classList.remove("played"),170)}
+}
+function buildPiano(){
+  const el=$("earPiano"),min=60,max=84;
+  let whiteCount=0;
+  for(let m=min;m<=max;m++){
+    const pc=m%12,black=[1,3,6,8,10].includes(pc);
+    const key=document.createElement("button");key.type="button";
+    key.className="pkey"+(black?" black":"");key.dataset.midi=m;
+    key.setAttribute("aria-label","Play "+noteName(m));key.title=noteName(m);
+    if(black){key.style.left=(whiteCount/15*100)+"%";key.textContent=""}
+    else{whiteCount++;key.textContent=pc===0?noteName(m):""}
+    key.addEventListener("pointerdown",ev=>{ev.preventDefault();playPiano(m);});
+    el.append(key);
+  }
+  el.style.width="100%";
+}
+function clearEarTarget(){document.querySelectorAll(".pkey.root,.pkey.target").forEach(key=>{key.classList.remove("root","target");key.removeAttribute("data-marker")})}
+function markEarKey(m,kind){const key=document.querySelector('[data-midi="'+m+'"]');if(key){key.classList.add(kind);key.dataset.marker=noteName(m)}}
+function newEarQuestion(){
+  if(earPhase==="question"){
+    revealEarAnswer();
+  }else{
+    $("earRoot").classList.remove("ear-start");
+    finishEarQuestion();
+  }
+}
+function finishEarQuestion(){
+  const pool=INTERVALS.filter(x=>x[0]!==0);
+  const selected=pool[Math.floor(Math.random()*pool.length)];
+  const direction=Math.random()<.5?-1:1;
+  const semitones=selected[0]*direction;
+  const roots=[];for(let n=60;n<=84;n++)if(n+semitones>=60&&n+semitones<=84)roots.push(n);
+  const root=roots[Math.floor(Math.random()*roots.length)];
+  earQuestion={root,target:root+semitones,interval:selected[1],direction};
+  earTotal++;lastEarAnswer=null;earPhase="question";clearEarTarget();
+  $("earScore").textContent=String(earTotal);
+  $("earRoot").classList.remove("revealed");
+  $("earRoot").textContent=noteName(root);
+  markEarKey(root,"root");
+  $("earCardPrompt").textContent="";
+  $("earInterval").textContent=selected[1]+(semitones===0?"":direction>0?" ↑":" ↓");
+  $("earFeedback").textContent="";
+  $("earHint").textContent="Tap to reveal";
+  $("earChallenge").setAttribute("aria-label","Reveal interval answer");
+  playPiano(root,1750);
+}
+function revealEarAnswer(){
+  if(!earQuestion || earPhase!=="question")return;
+  earPhase="revealed";
+  lastEarAnswer=earQuestion.target;
+  $("earRoot").textContent=noteName(lastEarAnswer);
+  $("earRoot").classList.add("revealed");
+  $("earFeedback").textContent="";
+  $("earHint").textContent="Tap for next";
+  $("earChallenge").setAttribute("aria-label","Get a new interval");
+  markEarKey(lastEarAnswer,"target");
+  playPiano(lastEarAnswer,1750);
+}
+$("earChallenge").addEventListener("click",newEarQuestion);
+// One-tap random key generator for the chord progression exercise.
+// A complete 24-key cycle is shuffled before repeats are allowed.
+const progressionKeys=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"].flatMap(root=>[root+" Major",root+" Minor"]);
+let progressionPool=[];
+function generateProgressionKey(){
+  if(!progressionPool.length){
+    progressionPool=[...progressionKeys];
+    for(let i=progressionPool.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [progressionPool[i],progressionPool[j]]=[progressionPool[j],progressionPool[i]];
+    }
+  }
+  const key=progressionPool.pop();
+  $("generateKey").textContent=key;
+  $("generateKey").classList.remove("key-empty");
+  $("generateKey").setAttribute("aria-label","Current key: "+key+". Tap to generate another key");
+}
+$("generateKey").addEventListener("click",generateProgressionKey);
+// Spacebar advances whichever exercise tool is currently selected.
+// Skip editable fields to preserve normal typing, and prevent button scrolling.
+document.addEventListener("keydown",event=>{
+  if(event.code!=="Space" && event.key!==" ")return;
+  if(event.repeat || event.altKey || event.ctrlKey || event.metaKey)return;
+  const focused=document.activeElement;
+  if(focused && (focused.isContentEditable || ["INPUT","TEXTAREA","SELECT"].includes(focused.tagName)))return;
+  if(!$("earTraining").hidden){event.preventDefault();newEarQuestion();}
+  else if(!$("chordDice").hidden){event.preventDefault();$("drawChord").click();}
+  else if(!$("progressionGenerator").hidden){event.preventDefault();$("generateKey").click();}
+});
+buildPiano();
+
 render();
+</script>
+
+<script>
+// Layout-only changes: move the original elements without replacing their event handlers.
+(function(){
+ const main=document.querySelector('main'), header=main.querySelector('header');
+ const grid=document.createElement('div');grid.className='apple-layout';
+ const sidebar=document.createElement('aside');sidebar.className='apple-sidebar';
+ const workspace=document.createElement('div');workspace.className='apple-workspace';
+ main.insertBefore(grid,header.nextSibling);grid.append(sidebar,workspace);
+ const sectionhead=main.querySelector('.sectionhead');
+ const toggle=document.getElementById('toggleEditor');const toggleWrap=toggle.parentElement;
+ [sectionhead,toggleWrap,document.getElementById('planHint'),document.getElementById('schedule'),document.getElementById('editActions')].forEach(e=>sidebar.append(e));
+ toggleWrap.classList.add('editor-toggle-wrap');toggleWrap.style.margin='0 0 11px';
+ ['timerPanel','chordDice','earTraining','progressionGenerator'].forEach(id=>workspace.append(document.getElementById(id)));
+ const clock=document.getElementById('clock');const face=document.createElement('div');face.className='timer-face';clock.parentElement.insertBefore(face,clock);face.append(clock);
+ const bar=document.getElementById('bar');
+ const update=()=>{face.style.setProperty('--progress',bar.style.width||'0%')};
+ new MutationObserver(update).observe(bar,{attributes:true,attributeFilter:['style']});update();
+ const state=document.getElementById('sessionState');
+ const dotStatus=()=>{if(state.textContent==='Paused'&&document.getElementById('clock').textContent=== '00:00')state.textContent='Finished';};
+ new MutationObserver(dotStatus).observe(state,{childList:true,subtree:true});
+})();
 </script>
 </body>
 </html>
